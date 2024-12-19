@@ -1,3 +1,6 @@
+import fs from 'fs';
+import sharp from 'sharp';
+import path from 'path';
 
 export const compressImages = async(sourcePath, saveDirectory, mode = 'replace', checkMode = false) => {
     const SIZE_LIMIT = 70000; // File size limit in bytes (e.g., 70 KB)

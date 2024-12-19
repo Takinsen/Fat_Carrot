@@ -5,8 +5,7 @@ import dotenv from 'dotenv';
 import bodyParser from 'body-parser'; 
 import mongoose from 'mongoose';
 import path from 'path';
-import fs from 'fs';
-import sharp from 'sharp';
+import compressImages from './controller/imageCompressor.js';
 import { fileURLToPath } from 'url';
 
 dotenv.config();
@@ -30,7 +29,7 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use('/api' , router);  
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));     
-
+compressImages(`./uploads`);
 app.listen(PORT , ()=>{
         console.log(`Backend Server is running on http://localhost:${PORT}`);
 })
