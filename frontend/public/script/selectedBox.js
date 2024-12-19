@@ -100,7 +100,7 @@ function fetchSelected(){
       selectedDataSet: Array.from(selectedDataSet),
       selectedTypeSet: Array.from(selectedTypeSet)
     };
-    fetch('/api/selectedItems', {
+    fetch(`${apiUrl}/selectedItems`, {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'
