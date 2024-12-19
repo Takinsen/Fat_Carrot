@@ -1,10 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const sharp = require('sharp');
 
-const SIZE_LIMIT = 70000; // File size limit in bytes (e.g., 70 KB)
-
-async function compressImages(sourcePath, saveDirectory, mode = 'replace', checkMode = false) {
+export const compressImages = async(sourcePath, saveDirectory, mode = 'replace', checkMode = false) => {
+    const SIZE_LIMIT = 70000; // File size limit in bytes (e.g., 70 KB)
     try {
         const isDirectory = fs.lstatSync(sourcePath).isDirectory();
 
@@ -72,5 +68,4 @@ async function compressImages(sourcePath, saveDirectory, mode = 'replace', check
     }
 }
 
-// Export the function
-module.exports = compressImages;
+export default compressImages

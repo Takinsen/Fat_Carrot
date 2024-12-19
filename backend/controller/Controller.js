@@ -1,6 +1,6 @@
 import allfood from '../model/foodData.js';
 import typefood from '../model/foodType.js';
-import imgCompressor from './imageCompressor.js';
+import compressImages from './imageCompressor.js';
 
 export const FetchAllFoodData = async(req , res)=>{
 
@@ -23,7 +23,7 @@ export const FetchAllFoodType = async(req , res)=>{
 
     try{
         const namefood = req.query.search || ''; 
-        const filter = namefood ? {name : namefood} : {};
+        const filter = namefood ? { name: { $regex: namefood, $options: 'i' } } : {};
         const AllfoodType = await typefood.find(filter);
         res.status(200).json(AllfoodType);
     }
@@ -69,6 +69,8 @@ export const AddNewFood = async(req , res)=>{
             message : "Upload Completed",
             Data : newFood
         }); 
+
+        compressImages(`./uploads`);
 
     }
     catch(err){

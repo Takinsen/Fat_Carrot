@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 import bodyParser from 'body-parser'; 
 import mongoose from 'mongoose';
 import path from 'path';
+import fs from 'fs';
+import sharp from 'sharp';
 import { fileURLToPath } from 'url';
 
 dotenv.config();
