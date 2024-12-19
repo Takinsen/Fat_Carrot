@@ -1,5 +1,6 @@
 import allfood from '../model/foodData.js';
 import typefood from '../model/foodType.js';
+import imgCompressor from './imageCompressor.js';
 
 export const FetchAllFoodData = async(req , res)=>{
 
