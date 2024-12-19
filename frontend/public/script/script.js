@@ -144,7 +144,7 @@ function displayFoodData(foodData, clearEnable = true) {
                         foodDataDiv.children[index].style.backgroundColor = 'rgb(255, 116, 36)';
                         foodDataDiv.dataset.select = '1';
                         
-                        selectedCal += msg.cal;
+                        selectedCal += parseInt(msg.cal);
                         selectedNum += 1;
                         selectedCalContainer.innerHTML = selectedCal;
                         selectedNumContainer.innerHTML = selectedNum;
@@ -158,7 +158,7 @@ function displayFoodData(foodData, clearEnable = true) {
                         foodDataDiv.children[index].style.backgroundColor = 'rgb(39, 39, 39)';
                         foodDataDiv.dataset.select = '0';
 
-                        selectedCal -= msg.cal;
+                        selectedCal -= parseInt(msg.cal);
                         selectedNum -= 1;
                         selectedCalContainer.innerHTML = selectedCal;
                         selectedNumContainer.innerHTML = selectedNum;
@@ -222,7 +222,7 @@ function displayFoodTypes(foodData, clearEnable = true) {
                         foodDataDiv.children[index].style.backgroundColor = 'rgb(255, 116, 36)';
                         foodDataDiv.dataset.select = '1';
 
-                        selectedCal += msg.avgCal;
+                        selectedCal += parseInt(msg.avgCal);
                         selectedNum += 1;
                         selectedCalContainer.innerHTML = selectedCal;
                         selectedNumContainer.innerHTML = selectedNum;
@@ -236,7 +236,7 @@ function displayFoodTypes(foodData, clearEnable = true) {
                         foodDataDiv.children[index].style.backgroundColor = 'rgb(39, 39, 39)';
                         foodDataDiv.dataset.select = '0';
 
-                        selectedCal -= msg.avgCal;
+                        selectedCal -= parseInt(msg.avgCal);
                         selectedNum -= 1;
                         selectedCalContainer.innerHTML = selectedCal;
                         selectedNumContainer.innerHTML = selectedNum;
