@@ -118,3 +118,9 @@ export const SelectItem = async(req , res)=>{
         })
     }
 }
+
+export const DeleteFoodData = async(req , res)=>{
+
+
+
+}
