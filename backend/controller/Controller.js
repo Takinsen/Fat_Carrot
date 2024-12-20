@@ -5,6 +5,51 @@ import allfood from '../model/foodData.js';
 import typefood from '../model/foodType.js';
 import compressImages from './imageCompressor.js';
 
+const VerifyFoodType = async(search)=>{
+
+    try{
+        const filter = search ? {name : search} : {};
+        const VerifyingFood = await typefood.find(filter);
+        VerifyingFood.forEach(async(foodType) =>{
+            const FoodDataInTag = await allfood.find({tag : foodType.name});
+            foodType.sumCal = 0;
+            foodType.num = FoodDataInTag.length;
+            FoodDataInTag.forEach(FoodData => {foodType.sumCal = foodType.sumCal + FoodData.cal})
+            foodType.avgCal = foodType.num > 0 ? Math.round(foodType.sumCal / foodType.num) : 0;
+            await foodType.save();
+        })
+        return VerifyingFood;
+    }
+    catch(err){
+        console.log(err);
+    }
+
+}
+
+export const Test = async(req , res)=>{
+
+
+
+}
+
+export const VerifyAllFoodType = async(req , res)=>{
+
+    try{
+        const VerifyFood = await VerifyFoodType();
+        res.status(200).json({
+            message : "Verify All Data Completed",
+            Data : VerifyFood
+        })
+    }
+    catch{
+        res.status(500).json({
+            message : "Error Verifying Data",
+            error : err.message
+        })
+    }
+
+}
+
 export const FetchAllFoodData = async(req , res)=>{
 
     try{
@@ -52,6 +97,19 @@ export const AddNewFood = async(req , res)=>{
             return res.status(400).json({ error: 'Calories is not valid' });
         }
 
+        const foodType = await typefood.findOne({name : tag});
+
+        if(!foodType){
+            return res.status(400).json({ error: `Food type '${tag}' does not exist.` });
+        }
+        if(foodType.num === 0){
+            foodType.sumCal = calories;
+            foodType.avgCal = calories;
+            foodType.num = 1;
+            foodType.imagePath = imagePath; 
+            await foodType.save();   
+        }
+
         const newFood = await allfood.create({ 
             name : name,
             cal : calories,
@@ -60,28 +118,7 @@ export const AddNewFood = async(req , res)=>{
             imagePath : imagePath
         });
 
-        const foodType = await typefood.findOne({name : tag});
-
-        if(foodType){
-
-            if (foodType.num === 0){
-                foodType.sumCal = calories;
-                foodType.avgCal = calories;
-                foodType.num = 1;
-                foodType.imagePath = imagePath; 
-                await foodType.save();          
-            }
-            else{
-                foodType.sumCal += calories;
-                foodType.num += 1;
-                foodType.avgCal = Math.round(foodType.sumCal / foodType.num);
-                await foodType.save();
-            }
-
-        }
-        else{
-            return res.status(400).json({ error: `Food type '${tag}' does not exist.` });
-        }
+        await VerifyFoodType(tag);
 
         compressImages(`./uploads`);
 
@@ -142,6 +179,8 @@ export const DeleteFoodData = async(req , res)=>{
     try{
 
         const deleteFood = await allfood.findByIdAndDelete(req.params.id);
+
+        await VerifyFoodType(deleteFood.tag);
         
         if(!deleteFood){
             return res.status(404).json({ message: 'Food not found' });
@@ -149,22 +188,7 @@ export const DeleteFoodData = async(req , res)=>{
 
         const foodType = await typefood.findOne({name : deleteFood.tag});
 
-        // Update Data
-
-        if(foodType){
-            foodType.num -= 1;
-            foodType.sumCal -= deleteFood.cal;
-            if(foodType.num <= 0){
-                foodType.num = 0;
-                foodType.avgCal = 0;
-            }
-            else{
-                foodType.avgCal = Math.round(foodType.sumCal / foodType.num);
-            }
-            await foodType.save();
-
-        }
-        else{
+        if(!foodType){
             return res.status(400).json({ error: `Food type '${deleteFood.tag}' does not exist.` });
         }
 

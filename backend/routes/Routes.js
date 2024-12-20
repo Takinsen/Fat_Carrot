@@ -30,6 +30,10 @@ router.get('/foodData', controller.FetchAllFoodData);
 router.get('/foodType', controller.FetchAllFoodType);
 router.post('/addFoodData', upload.single('image') , controller.AddNewFood);
 router.post('/selectedItems', controller.SelectItem);
+router.put('/refresh' , controller.VerifyAllFoodType);
 router.delete('/deleteFoodData/:id' , controller.DeleteFoodData);
+
+// -------------- test API -------------- //
+router.get('/test', controller.Test);
 
 export default router;

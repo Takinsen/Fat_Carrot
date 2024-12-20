@@ -25,6 +25,8 @@ const foodDataSchema = new mongoose.Schema({
 
 })
 
+foodDataSchema.index({tag : 1});
+
 const allfood = mongoose.model('all_food' , foodDataSchema);
 
 export default allfood;
