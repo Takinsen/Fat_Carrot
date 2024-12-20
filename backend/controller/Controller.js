@@ -1,4 +1,6 @@
-import mongoose from 'mongoose';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import allfood from '../model/foodData.js';
 import typefood from '../model/foodType.js';
 import compressImages from './imageCompressor.js';
@@ -69,7 +71,6 @@ export const AddNewFood = async(req , res)=>{
                 foodType.imagePath = imagePath; 
                 await foodType.save();          
             }
-            
             else{
                 foodType.sumCal += calories;
                 foodType.num += 1;
@@ -140,10 +141,6 @@ export const DeleteFoodData = async(req , res)=>{
 
     try{
 
-        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-            return res.status(400).json({ message: 'Invalid ID format' });
-        }
-
         const deleteFood = await allfood.findByIdAndDelete(req.params.id);
         
         if(!deleteFood){
@@ -152,7 +149,7 @@ export const DeleteFoodData = async(req , res)=>{
 
         const foodType = await typefood.findOne({name : deleteFood.tag});
 
-        console.log(foodType);
+        // Update Data
 
         if(foodType){
             foodType.num -= 1;
@@ -169,6 +166,26 @@ export const DeleteFoodData = async(req , res)=>{
         }
         else{
             return res.status(400).json({ error: `Food type '${deleteFood.tag}' does not exist.` });
+        }
+
+        // Delete Image
+
+        const imagePath = deleteFood.imagePath;
+
+        if (imagePath) {
+
+            const __dirname = path.dirname(fileURLToPath(import.meta.url));
+            const filePath = path.resolve(__dirname, '..', imagePath.replace(/^\/+/, ''));
+            
+            // Check if the file exists before deleting
+            await fs.unlink(filePath, (err) => {
+                if (err) {
+                    console.error('Error deleting image file:', err);
+                    return res.status(500).json({ message: 'Error deleting image file', error: err.message });
+                }
+                console.log('Image file deleted successfully');
+            });
+
         }
 
         res.status(200).json({
