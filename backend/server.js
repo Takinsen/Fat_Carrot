@@ -29,7 +29,7 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use('/api' , router);  
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));     
-compressImages(`./uploads`);
+//compressImages(`./uploads`);
 app.listen(PORT , ()=>{
         console.log(`Backend Server is running on http://localhost:${PORT}`);
 })

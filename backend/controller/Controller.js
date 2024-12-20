@@ -1,6 +1,7 @@
 import allfood from '../model/foodData.js';
 import typefood from '../model/foodType.js';
 import compressImages from './imageCompressor.js';
+import mongoose from 'mongoose';
 
 export const FetchAllFoodData = async(req , res)=>{
 
@@ -120,7 +121,34 @@ export const SelectItem = async(req , res)=>{
 }
 
 export const DeleteFoodData = async(req , res)=>{
+    const { foodId, foodTag } = req.query;
 
+    console.log(foodId)
 
+    try {
 
+        const result = await allfood.deleteOne({ imagePath: foodId });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ message: "Food item not found" });
+        }
+
+        if (foodTag) {
+            const filter = { name: foodTag };
+            const editedFoodType = await typefood.find(filter);
+
+            if (editedFoodType.length > 0) {
+                editedFoodType[0].num = parseInt(editedFoodType[0].num) - 1;
+                await editedFoodType[0].save();
+            }
+        }
+
+        res.status(200).json({ message: "Food item deleted successfully" });
+    } catch (err) {
+        res.status(500).json({
+            message: "Error deleting food item",
+            error: err.message
+        });
+        console.log(err);
+    }
 }
