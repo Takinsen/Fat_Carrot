@@ -1,7 +1,9 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import allfood from '../model/foodData.js';
 import typefood from '../model/foodType.js';
 import compressImages from './imageCompressor.js';
-import mongoose from 'mongoose';
 
 export const FetchAllFoodData = async(req , res)=>{
 
@@ -41,37 +43,52 @@ export const AddNewFood = async(req , res)=>{
     try{
         const { name, cal, loc, tag } = req.body;
         const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+        const calories = parseInt(cal);
 
         if (!name || !cal || !imagePath) {
             return res.status(400).json({ error: 'Name, calorie data, and image are required.' });
         }
-        
-        const newFood = await allfood.create({ name, cal, loc, tag , imagePath});
+        if (typeof calories !== 'number') {
+            return res.status(400).json({ error: 'Calories is not valid' });
+        }
+
+        const newFood = await allfood.create({ 
+            name : name,
+            cal : calories,
+            loc : loc,
+            tag : tag,
+            imagePath : imagePath
+        });
+
         const foodType = await typefood.findOne({name : tag});
 
         if(foodType){
+
             if (foodType.num === 0){
-                foodType.avgCal = cal;
+                foodType.sumCal = calories;
+                foodType.avgCal = calories;
                 foodType.num = 1;
-                foodType.imagePath = imagePath;
-                await foodType.save();
+                foodType.imagePath = imagePath; 
+                await foodType.save();          
             }
             else{
-                const updatedAvgCal = Math.round(((foodType.avgCal * foodType.num) + cal) / (foodType.num + 1));
-                foodType.avgCal = updatedAvgCal;
+                foodType.sumCal += calories;
                 foodType.num += 1;
+                foodType.avgCal = Math.round(foodType.sumCal / foodType.num);
                 await foodType.save();
             }
+
         }
         else{
             return res.status(400).json({ error: `Food type '${tag}' does not exist.` });
         }
+
+        compressImages(`./uploads`);
+
         res.status(201).json({
             message : "Upload Completed",
             Data : newFood
         }); 
-
-        compressImages(`./uploads`);
 
     }
     catch(err){
@@ -121,34 +138,67 @@ export const SelectItem = async(req , res)=>{
 }
 
 export const DeleteFoodData = async(req , res)=>{
-    const { foodId, foodTag } = req.query;
 
-    console.log(foodId)
+    try{
 
-    try {
-
-        const result = await allfood.deleteOne({ imagePath: foodId });
-
-        if (result.deletedCount === 0) {
-            return res.status(404).json({ message: "Food item not found" });
+        const deleteFood = await allfood.findByIdAndDelete(req.params.id);
+        
+        if(!deleteFood){
+            return res.status(404).json({ message: 'Food not found' });
         }
 
-        if (foodTag) {
-            const filter = { name: foodTag };
-            const editedFoodType = await typefood.find(filter);
+        const foodType = await typefood.findOne({name : deleteFood.tag});
 
-            if (editedFoodType.length > 0) {
-                editedFoodType[0].num = parseInt(editedFoodType[0].num) - 1;
-                await editedFoodType[0].save();
+        // Update Data
+
+        if(foodType){
+            foodType.num -= 1;
+            foodType.sumCal -= deleteFood.cal;
+            if(foodType.num <= 0){
+                foodType.num = 0;
+                foodType.avgCal = 0;
             }
+            else{
+                foodType.avgCal = Math.round(foodType.sumCal / foodType.num);
+            }
+            await foodType.save();
+
+        }
+        else{
+            return res.status(400).json({ error: `Food type '${deleteFood.tag}' does not exist.` });
         }
 
-        res.status(200).json({ message: "Food item deleted successfully" });
-    } catch (err) {
-        res.status(500).json({
-            message: "Error deleting food item",
-            error: err.message
+        // Delete Image
+
+        const imagePath = deleteFood.imagePath;
+
+        if (imagePath) {
+
+            const __dirname = path.dirname(fileURLToPath(import.meta.url));
+            const filePath = path.resolve(__dirname, '..', imagePath.replace(/^\/+/, ''));
+            
+            // Check if the file exists before deleting
+            await fs.unlink(filePath, (err) => {
+                if (err) {
+                    console.error('Error deleting image file:', err);
+                    return res.status(500).json({ message: 'Error deleting image file', error: err.message });
+                }
+                console.log('Image file deleted successfully');
+            });
+
+        }
+
+        res.status(200).json({
+            message: 'Deleted Food completely',
+            DeletedData : deleteFood
         });
-        console.log(err);
+
     }
+    catch(err){
+        res.status(500).json({
+            message : "Error Deleting Food",
+            error : err.message
+        })
+    }
+
 }

@@ -10,8 +10,12 @@ const foodTypeSchema = new mongoose.Schema({
         type : Number,
         require : true
     },
+    sumCal:{
+        type : Number, 
+        require : true
+    },
     avgCal:{
-        type : String, 
+        type : Number, 
         require : true
     },
     imagePath:{
