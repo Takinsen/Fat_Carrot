@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import allfood from '../model/foodData.js';
 import typefood from '../model/foodType.js';
 import compressImages from './imageCompressor.js';
@@ -40,37 +41,53 @@ export const AddNewFood = async(req , res)=>{
     try{
         const { name, cal, loc, tag } = req.body;
         const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+        const calories = parseInt(cal);
 
         if (!name || !cal || !imagePath) {
             return res.status(400).json({ error: 'Name, calorie data, and image are required.' });
         }
-        
-        const newFood = await allfood.create({ name, cal, loc, tag , imagePath});
+        if (typeof calories !== 'number') {
+            return res.status(400).json({ error: 'Calories is not valid' });
+        }
+
+        const newFood = await allfood.create({ 
+            name : name,
+            cal : calories,
+            loc : loc,
+            tag : tag,
+            imagePath : imagePath
+        });
+
         const foodType = await typefood.findOne({name : tag});
 
         if(foodType){
+
             if (foodType.num === 0){
-                foodType.avgCal = cal;
+                foodType.sumCal = calories;
+                foodType.avgCal = calories;
                 foodType.num = 1;
-                foodType.imagePath = imagePath;
-                await foodType.save();
+                foodType.imagePath = imagePath; 
+                await foodType.save();          
             }
+            
             else{
-                const updatedAvgCal = Math.round(((foodType.avgCal * foodType.num) + cal) / (foodType.num + 1));
-                foodType.avgCal = updatedAvgCal;
+                foodType.sumCal += calories;
                 foodType.num += 1;
+                foodType.avgCal = Math.round(foodType.sumCal / foodType.num);
                 await foodType.save();
             }
+
         }
         else{
             return res.status(400).json({ error: `Food type '${tag}' does not exist.` });
         }
+
+        compressImages(`./uploads`);
+
         res.status(201).json({
             message : "Upload Completed",
             Data : newFood
         }); 
-
-        compressImages(`./uploads`);
 
     }
     catch(err){
@@ -121,6 +138,50 @@ export const SelectItem = async(req , res)=>{
 
 export const DeleteFoodData = async(req , res)=>{
 
+    try{
 
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ message: 'Invalid ID format' });
+        }
+
+        const deleteFood = await allfood.findByIdAndDelete(req.params.id);
+        
+        if(!deleteFood){
+            return res.status(404).json({ message: 'Food not found' });
+        }
+
+        const foodType = await typefood.findOne({name : deleteFood.tag});
+
+        console.log(foodType);
+
+        if(foodType){
+            foodType.num -= 1;
+            foodType.sumCal -= deleteFood.cal;
+            if(foodType.num <= 0){
+                foodType.num = 0;
+                foodType.avgCal = 0;
+            }
+            else{
+                foodType.avgCal = Math.round(foodType.sumCal / foodType.num);
+            }
+            await foodType.save();
+
+        }
+        else{
+            return res.status(400).json({ error: `Food type '${deleteFood.tag}' does not exist.` });
+        }
+
+        res.status(200).json({
+            message: 'Deleted Food completely',
+            DeletedData : deleteFood
+        });
+
+    }
+    catch(err){
+        res.status(500).json({
+            message : "Error Deleting Food",
+            error : err.message
+        })
+    }
 
 }
