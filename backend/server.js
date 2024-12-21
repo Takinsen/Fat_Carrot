@@ -1,12 +1,14 @@
 import express from 'express'
 import cors from 'cors'
-import router from './routes/Routes.js';
+import Food_API from './api/foodAPI.js';
+import Test_API from './api/testAPI.js';
 import dotenv from 'dotenv';
 import bodyParser from 'body-parser'; 
 import mongoose from 'mongoose';
 import path from 'path';
-import compressImages from './controller/imageCompressor.js';
 import { fileURLToPath } from 'url';
+import compressImages from './script/imageCompressor.js';
+import * as foodScript from './script/foodScript.js';
 
 dotenv.config();
 
@@ -20,16 +22,35 @@ const PORT = 84;
 
 //----------------------------------------------------------------//
 
-mongoose.connect(process.env.MONGO_URL)
-.then(()=>console.log('Connected to MongoDB Complete!'))
-.catch((err)=>console.error('Error connecting to MongoDB :', err));
-
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
-app.use('/api' , router);  
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));     
+app.use('/api' , Food_API);  
+app.use('/api' , Test_API);  
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));    
+
 //compressImages(`./uploads`);
-app.listen(PORT , ()=>{
-        console.log(`Backend Server is running on http://localhost:${PORT}`);
-})
+
+// ---------------------- Start the Server ---------------------- //
+
+const initializeServer = async () =>{
+    try{
+        console.log('Backend Server is starting...');
+
+        console.log('Step 1/3 : Connecting to MongoDB...')
+        await mongoose.connect(process.env.MONGO_URL)
+
+        console.log('Step 2/3 : MongoDB is verifying data...');
+        await foodScript.VerifyFoodType();
+
+        console.log('Step 3/3 : Starting the backend server...');
+        app.listen(PORT, () => {
+            console.log(`Backend Server is ready at http://localhost:${PORT}`);
+        });
+    }
+    catch(err){
+        console.log("Failed to start server:" , err);
+    }
+}
+
+initializeServer();

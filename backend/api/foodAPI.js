@@ -1,56 +1,36 @@
+import express from 'express'
+import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import allfood from '../model/foodData.js';
 import typefood from '../model/foodType.js';
-import compressImages from './imageCompressor.js';
+import compressImages from '../script/imageCompressor.js';
+import * as foodScript from '../script/foodScript.js'
 
-const VerifyFoodType = async(search)=>{
+const Food_API = express.Router();
 
-    try{
-        const filter = search ? {name : search} : {};
-        const VerifyingFood = await typefood.find(filter);
-        VerifyingFood.forEach(async(foodType) =>{
-            const FoodDataInTag = await allfood.find({tag : foodType.name});
-            foodType.sumCal = 0;
-            foodType.num = FoodDataInTag.length;
-            FoodDataInTag.forEach(FoodData => {foodType.sumCal = foodType.sumCal + FoodData.cal})
-            foodType.avgCal = foodType.num > 0 ? Math.round(foodType.sumCal / foodType.num) : 0;
-            await foodType.save();
-        })
-        return VerifyingFood;
+// -------------- Configuration -------------- //
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadDir = 'uploads/'; // Directory to store uploaded files
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir); // Create the directory if it doesn't exist
+        }
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(file.originalname)}`;
+        cb(null, uniqueName);
     }
-    catch(err){
-        console.log(err);
-    }
+});
 
-}
+const upload = multer({ storage });
 
-export const Test = async(req , res)=>{
+// -------------- API -------------- //
 
-
-
-}
-
-export const VerifyAllFoodType = async(req , res)=>{
-
-    try{
-        const VerifyFood = await VerifyFoodType();
-        res.status(200).json({
-            message : "Verify All Data Completed",
-            Data : VerifyFood
-        })
-    }
-    catch{
-        res.status(500).json({
-            message : "Error Verifying Data",
-            error : err.message
-        })
-    }
-
-}
-
-export const FetchAllFoodData = async(req , res)=>{
+Food_API.get('/foodData', async(req , res)=>{
 
     try{
         const nametag = req.query.search || '';
@@ -65,9 +45,9 @@ export const FetchAllFoodData = async(req , res)=>{
         })
     }
 
-};
+});
 
-export const FetchAllFoodType = async(req , res)=>{
+Food_API.get('/foodType', async(req , res)=>{
 
     try{
         const namefood = req.query.search || ''; 
@@ -82,9 +62,10 @@ export const FetchAllFoodType = async(req , res)=>{
         })
     }
 
-};
+});
 
-export const AddNewFood = async(req , res)=>{
+Food_API.post('/addFoodData', upload.single('image') , async(req , res)=>{
+
     try{
         const { name, cal, loc, tag } = req.body;
         const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
@@ -102,12 +83,19 @@ export const AddNewFood = async(req , res)=>{
         if(!foodType){
             return res.status(400).json({ error: `Food type '${tag}' does not exist.` });
         }
+        
         if(foodType.num === 0){
             foodType.sumCal = calories;
             foodType.avgCal = calories;
             foodType.num = 1;
             foodType.imagePath = imagePath; 
             await foodType.save();   
+        }
+        else{
+            foodType.sumCal += calories;
+            foodType.num += 1;
+            foodType.avgCal = Math.round(foodType.sumCal / foodType.num);
+            await foodType.save();
         }
 
         const newFood = await allfood.create({ 
@@ -118,7 +106,7 @@ export const AddNewFood = async(req , res)=>{
             imagePath : imagePath
         });
 
-        await VerifyFoodType(tag);
+        await foodScript.VerifyFoodType(tag);
 
         compressImages(`./uploads`);
 
@@ -134,13 +122,12 @@ export const AddNewFood = async(req , res)=>{
             error : err.message
         })
     }
-};
 
-export const SelectItem = async(req , res)=>{
+});
+
+Food_API.post('/selectedItems', async(req , res)=>{
 
     const { selectedDataSet, selectedTypeSet } = req.body;
-
-    console.log('Worked');
 
     try{
         const queries = [];
@@ -172,15 +159,16 @@ export const SelectItem = async(req , res)=>{
             error : err.message
         })
     }
-}
 
-export const DeleteFoodData = async(req , res)=>{
+});
+
+Food_API.delete('/deleteFoodData/:id' , async(req , res)=>{
 
     try{
 
         const deleteFood = await allfood.findByIdAndDelete(req.params.id);
 
-        await VerifyFoodType(deleteFood.tag);
+        await foodScript.VerifyFoodType(deleteFood.tag);
         
         if(!deleteFood){
             return res.status(404).json({ message: 'Food not found' });
@@ -225,4 +213,6 @@ export const DeleteFoodData = async(req , res)=>{
         })
     }
 
-}
+});
+
+export default Food_API;
