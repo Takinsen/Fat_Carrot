@@ -1,5 +1,5 @@
-const apiUrl = 'http://pieboard.thddns.net:6994/api';
-const Url = 'http://pieboard.thddns.net:6994';
+const apiUrl = 'https://fat-carrot-backend.onrender.com/api';
+const Url = 'https://fat-carrot-backend.onrender.com';
 // production url pieboard.thddns.net:6994
 // Fetch and display all messages when the page loads
 let selectedgroup = "default";
