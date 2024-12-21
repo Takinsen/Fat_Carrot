@@ -118,13 +118,13 @@ function displayFoodData(foodData, clearEnable = true) {
                 console.log(msg.name)
                 foodDataDiv.innerHTML = `${drawImage(Url + msg.imagePath, "foodDataImage")} 
                 <div class="foodnameLable">${msg.name}</div>  
-                ${drawImage("ui-image/carrot@5x.png", "foodTypeCalImage")}
+                ${drawImage("../ui-image/carrot@5x.png", "foodTypeCalImage")}
                 <div class="foodcalLable">${msg.cal}</div>
-                <img class="foodTypeLocImage" src="ui-image/location.app@5x.png">
+                <img class="foodTypeLocImage" src="../ui-image/location.app@5x.png">
                 <div class="foodLocLable" id="FoodLocPreview">${msg.loc}</div>
                 <div class="foodTagLable" id="foodTagPreview"># ${msg.tag}</div>
                 <div class="selectTypeButton">
-                ${drawImage("ui-image/plus@5x.png", "selectTypeIcon")}
+                ${drawImage("../ui-image/plus@5x.png", "selectTypeIcon")}
                 </div>
                 `;
 
