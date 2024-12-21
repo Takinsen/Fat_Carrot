@@ -12,7 +12,7 @@ const Food_API = express.Router();
 
 // -------------- Configuration -------------- //
 
-const storage = multer.diskStorage({
+const foodDataStorage = multer.diskStorage({
     destination: (req, file, cb) => {
         const uploadDir = 'uploads/'; // Directory to store uploaded files
         if (!fs.existsSync(uploadDir)) {
@@ -26,7 +26,22 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage });
+const foodTypeStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadDir = 'uploads/foodProfile'; // Directory to store uploaded files
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir); // Create the directory if it doesn't exist
+        }
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(file.originalname)}`;
+        cb(null, uniqueName);
+    }
+});
+
+const uploadFoodType = multer({ storage: foodTypeStorage });
+const uploadFoodData = multer({ storage: foodDataStorage });
 
 // -------------- API -------------- //
 
@@ -64,7 +79,7 @@ Food_API.get('/foodType', async(req , res)=>{
 
 });
 
-Food_API.post('/addFoodData', upload.single('image') , async(req , res)=>{
+Food_API.post('/addFoodData', uploadFoodData.single('image') , async(req , res)=>{
 
     try{
         const { name, cal, loc, tag } = req.body;
@@ -74,6 +89,7 @@ Food_API.post('/addFoodData', upload.single('image') , async(req , res)=>{
         if (!name || !cal || !imagePath) {
             return res.status(400).json({ error: 'Name, calorie data, and image are required.' });
         }
+
         if (typeof calories !== 'number') {
             return res.status(400).json({ error: 'Calories is not valid' });
         }
@@ -111,10 +127,48 @@ Food_API.post('/addFoodData', upload.single('image') , async(req , res)=>{
         compressImages(`./uploads`);
 
         res.status(201).json({
-            message : "Upload Completed",
+            message : "Upload new food completed",
             Data : newFood
         }); 
 
+    }
+    catch(err){
+        res.status(500).json({
+            message : "Error posting data",
+            error : err.message
+        })
+    }
+
+});
+
+Food_API.post('/uploadFoodProfile', uploadFoodType.single('image') , async(req , res)=>{
+
+    try{
+        //const imagePath = req.body.imagePath;
+        const imagePath = req.file ? `/uploads/foodProfile/${req.file.filename}` : null;
+        const tag = req.body.tag;
+
+        if (!tag || !imagePath) {
+            return res.status(400).json({ 
+                error: 'tag and image are required.' ,
+                imagePath : imagePath ,
+                tag : tag
+            });
+        }
+
+        const selectFood = await typefood.findOne({name : tag});
+
+        if(!selectFood){
+            return res.status(400).json({ error: `Food type '${tag}' does not exist.` });
+        }
+
+        selectFood.imagePath = imagePath;
+        await selectFood.save();
+
+        res.status(201).json({
+            message : "Upload food profile completed",
+            Data : selectFood
+        }); 
     }
     catch(err){
         res.status(500).json({
