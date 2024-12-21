@@ -6,7 +6,7 @@ Test_API.get('/' , async(req , res) =>{
 
     try{
         res.status(200).json({
-            message : "Test API Successfully"
+            message : "This is Test API"
         })
     }
     catch(err){
