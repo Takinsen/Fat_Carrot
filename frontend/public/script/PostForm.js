@@ -1,8 +1,11 @@
 const imageInput = document.getElementById('image-input');
 const imagePreview = document.getElementById('image-preview');
 const imagePreviewFoodpreview = document.getElementById('imagePreviewFoodpreview');
+const foodPreview = document.getElementById('FoodPreview');
+const foodInputBlocker = document.getElementById('foodInputBlocker');
+const uploadStatus = document.getElementById('uploadStatus');
 let selectedImage = null; // Variable to store the selected image
-let selectedTag = "0";
+let selectedTag = "";
 
 function saveAndPerviewImage(event) {
     const file = event.target.files[0];
@@ -37,32 +40,53 @@ async function post(e) {
         formData.append('tag', selectedTag);
         formData.append('image', selectedImage); // Add the image file
 
-        // Post the data to the server
-        await fetch(`${apiUrl}/addFoodData`, {
-            method: 'POST',
-            body: formData // Send FormData directly
-        });
+        // Set load animation
+        foodPreview.classList.add('pulse-opacity');
+        foodInputBlocker.style.display = 'block';
+        uploadStatus.innerHTML = "Posting...";
+        uploadStatus.style.color = 'rgb(255, 116, 36)';
 
-        // Clear the input fields and preview
-        document.getElementById('foodDataName').value = '';
-        document.getElementById('foodDataCal').value = '';
-        document.getElementById('foodDataLoc').value = '';
-        selectedTag = '';
-        imagePreview.innerHTML = '';
-        imagePreviewFoodpreview.innerHTML = '';
-        postButton.style.backgroundColor = 'rgb(152, 152, 152)';
-        window.scrollTo({top: 0,});
-        selectedImage = null;
-        // for fucture animation
+        try {
+            // Post the data to the server
+            await fetch(`${apiUrl}/addFoodData`, {
+                method: 'POST',
+                body: formData // Send FormData directly
+            });
 
-        //--
+            // Remove the load animation
+            foodPreview.classList.remove('pulse-opacity');
+            foodInputBlocker.style.display = 'none';
+            uploadStatus.innerHTML = "Post completed";
 
-        // fetchMessages(); // Uncomment if needed
-        fetchFoodType();
+            // Clear the input fields and preview
+            document.getElementById('foodDataName').value = '';
+            document.getElementById('foodDataCal').value = '';
+            document.getElementById('foodDataLoc').value = '';
+            selectedTag = '';
+            imagePreview.innerHTML = '';
+            imagePreviewFoodpreview.innerHTML = '';
+            postButton.style.backgroundColor = 'rgb(152, 152, 152)';
+            window.scrollTo({top: 0,});
+            selectedImage = null;
+    
+            fetchFoodType();
+        }
+        catch (error) {
+            uploadStatus.innerHTML = "Post failed";
+            uploadStatus.style.color = 'red';
+
+            // Remove the load animation
+            foodPreview.classList.remove('pulse-opacity');
+            foodInputBlocker.style.display = 'none';
+        }
+   
     } else {
         postButton.style.backgroundColor = 'red';
+        uploadStatus.innerHTML = "Please fill the form";
+        uploadStatus.style.color = 'red';
         setTimeout(function(){
             postButton.style.backgroundColor = 'rgb(152, 152, 152)';
+            uploadStatus.style.color = 'rgba(77, 77, 77, 0.507)';
         },500)
 
         // for fucture animation
@@ -103,15 +127,21 @@ function summitableCheck(e){
     else
         foodLocPreview.innerHTML = "Location";
     if (selectedTag != "")
-        foodTagLable.innerHTML = `#${selectedTag}`;
+        foodTagLable.innerHTML = `# ${selectedTag}`;
     else
-        foodTagLable.innerHTML = "#Tag";
+        foodTagLable.innerHTML = "# Tag";
 
     if (dataName !== "" && dataCal !== "" && dataLoc !== "" && selectedImage && selectedTag !== ""){
         postButton.style.backgroundColor = 'rgb(255, 116, 36)';
+        
+        uploadStatus.innerHTML = "Ready to post";
+        uploadStatus.style.color = 'rgb(255, 116, 36)';
     }
     else {
         postButton.style.backgroundColor = 'rgb(152, 152, 152)';
+        
+        uploadStatus.innerHTML = "Please fill the form";
+        uploadStatus.style.color = 'rgba(77, 77, 77, 0.507)';
     }
 }
 

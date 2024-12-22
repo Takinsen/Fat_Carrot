@@ -341,7 +341,7 @@ document.getElementById("submitUser").addEventListener('click', async function(e
 
 function deletcData(foodId){
     fetch(`${apiUrl}/deleteFoodData/${foodId}`, {
-        method: 'DELETE',
+        method: 'DELETE', 
         headers: {
             'Content-Type': 'application/json'
         }
