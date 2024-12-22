@@ -117,7 +117,7 @@ function displayFoodData(foodData, clearEnable = true) {
                 foodDataDiv.id = msg.imagePath;
                 foodDataDiv.dataset.select = '0';
                 console.log(msg.name)
-                foodDataDiv.innerHTML = `${drawImage(Url + msg.imagePath, "foodDataImage")} 
+                foodDataDiv.innerHTML = `${drawImage(msg.imageCloudPath, "foodDataImage")} 
                 <div class="foodnameLable">${msg.name}</div>  
                 ${drawImage("ui-image/carrot@5x.png", "foodTypeCalImage")}
                 <div class="foodcalLable">${msg.cal}</div>
@@ -189,7 +189,7 @@ function displayFoodTypes(foodData, clearEnable = true) {
                 foodDataDiv.id = msg.imagePath;
                 foodDataDiv.dataset.select = '0';
                 console.log(msg.name)
-                foodDataDiv.innerHTML = `${drawImage(Url + msg.imagePath, "foodTypeImage")} 
+                foodDataDiv.innerHTML = `${drawImage(msg.imageCloudPath, "foodTypeImage")} 
                 <div class="foodTypenameLable">${msg.name}</div>  
                 ${drawImage("ui-image/carrot@5x.png", "foodTypeCalImage")}
                 <div class="foodTypecalLable">${msg.avgCal}</div>

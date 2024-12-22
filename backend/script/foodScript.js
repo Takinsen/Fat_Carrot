@@ -23,3 +23,31 @@ export const VerifyFoodType = async(search)=>{
     }
 
 }
+
+export const UpdateAfterPost = async(request)=>{
+
+    try{
+        const foodType = await typefood.findOne({name : request.tag});
+
+        if(!foodType){
+            throw new Error(`Food type '${request.tag}' does not exist.`);
+        }
+
+        if(foodType.num === 0){
+            foodType.sumCal = request.cal;
+            foodType.avgCal = request.cal;
+            foodType.num = 1;
+            await foodType.save();   
+        }
+        else{
+            foodType.sumCal += request.cal;
+            foodType.num += 1;
+            foodType.avgCal = Math.round(foodType.sumCal / foodType.num);
+            await foodType.save();
+        }
+    }
+    catch(err){
+        console.log(err)
+    }
+
+}

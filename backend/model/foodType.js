@@ -18,10 +18,18 @@ const foodTypeSchema = new mongoose.Schema({
         type : Number, 
         require : true
     },
+    imageName:{
+        type : String, 
+        require : true
+    },
     imagePath:{
         type : String, 
         require : true
     },
+    imageCloudPath:{
+        type : String, 
+        require : true
+    }
     
 })
 

@@ -1,12 +1,13 @@
-import express from 'express'
+import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { v2 as cloudinary } from 'cloudinary';
 import allfood from '../model/foodData.js';
 import typefood from '../model/foodType.js';
-import compressImages from '../script/imageCompressor.js';
-import * as foodScript from '../script/foodScript.js'
+import * as Image from '../script/imageScript.js';
+import * as Food from '../script/foodScript.js';
 
 const Food_API = express.Router();
 
@@ -82,53 +83,34 @@ Food_API.get('/foodType', async(req , res)=>{
 Food_API.post('/addFoodData', uploadFoodData.single('image') , async(req , res)=>{
 
     try{
-        const { name, cal, loc, tag } = req.body;
-        const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
-        const calories = parseInt(cal);
+        const request = {
+            name : req.body.name,
+            cal : parseInt(req.body.cal),
+            loc : req.body.loc,
+            tag : req.body.tag
+        }
 
-        if (!name || !cal || !imagePath) {
+        if (!request.name || !request.cal || !req.file) {
             return res.status(400).json({ error: 'Name, calorie data, and image are required.' });
         }
 
-        if (typeof calories !== 'number') {
-            return res.status(400).json({ error: 'Calories is not valid' });
-        }
+        await Food.UpdateAfterPost(request);
 
-        const foodType = await typefood.findOne({name : tag});
-
-        if(!foodType){
-            return res.status(400).json({ error: `Food type '${tag}' does not exist.` });
-        }
-        
-        if(foodType.num === 0){
-            foodType.sumCal = calories;
-            foodType.avgCal = calories;
-            foodType.num = 1;
-            foodType.imagePath = imagePath; 
-            await foodType.save();   
-        }
-        else{
-            foodType.sumCal += calories;
-            foodType.num += 1;
-            foodType.avgCal = Math.round(foodType.sumCal / foodType.num);
-            await foodType.save();
-        }
-
-        const newFood = await allfood.create({ 
-            name : name,
-            cal : calories,
-            loc : loc,
-            tag : tag,
-            imagePath : imagePath
+        // Upload image to cloud
+        const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: 'allFoodImage'
         });
 
-        await foodScript.VerifyFoodType(tag);
-
-        compressImages(`./uploads`);
+        const newFood = await allfood.create({ 
+            name : request.name,
+            cal : request.cal,
+            loc : request.loc,
+            tag : request.tag,
+            imageCloudPath : result.secure_url
+        });
 
         res.status(201).json({
-            message : "Upload new food completed",
-            Data : newFood
+            message : "Upload new food completed"
         }); 
 
     }
@@ -144,11 +126,9 @@ Food_API.post('/addFoodData', uploadFoodData.single('image') , async(req , res)=
 Food_API.post('/uploadFoodProfile', uploadFoodType.single('image') , async(req , res)=>{
 
     try{
-        //const imagePath = req.body.imagePath;
-        const imagePath = req.file ? `/uploads/foodProfile/${req.file.filename}` : null;
         const tag = req.body.tag;
 
-        if (!tag || !imagePath) {
+        if (!tag || !req.file) {
             return res.status(400).json({ 
                 error: 'tag and image are required.' ,
                 imagePath : imagePath ,
@@ -162,12 +142,23 @@ Food_API.post('/uploadFoodProfile', uploadFoodType.single('image') , async(req ,
             return res.status(400).json({ error: `Food type '${tag}' does not exist.` });
         }
 
-        selectFood.imagePath = imagePath;
+        // Delete image from cloud ( อย่าพึ่งใช้จนกว่าจะอัพรูปทุกครบทุก tag )
+        // const publicID = Image.getPublicId(selectFood.imageCloudPath);
+        // await cloudinary.uploader.destroy(publicID);
+
+        // Upload image to cloud
+        const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: 'FoodProfile'
+        });
+
+        // Update imageCloudPath
+        selectFood.imageCloudPath = result.secure_url;
         await selectFood.save();
 
         res.status(201).json({
             message : "Upload food profile completed",
-            Data : selectFood
+            Data : selectFood,
+            UploadResult : result
         }); 
     }
     catch(err){
@@ -221,41 +212,20 @@ Food_API.delete('/deleteFoodData/:id' , async(req , res)=>{
     try{
 
         const deleteFood = await allfood.findByIdAndDelete(req.params.id);
-
-        await foodScript.VerifyFoodType(deleteFood.tag);
         
         if(!deleteFood){
             return res.status(404).json({ message: 'Food not found' });
         }
 
-        const foodType = await typefood.findOne({name : deleteFood.tag});
-
-        if(!foodType){
-            return res.status(400).json({ error: `Food type '${deleteFood.tag}' does not exist.` });
-        }
-
         // Delete Image
 
-        const imagePath = deleteFood.imagePath;
+        const publicID = Image.getPublicId(deleteFood.imageCloudPath);
+        await cloudinary.uploader.destroy(publicID);
 
-        if (imagePath) {
-
-            const __dirname = path.dirname(fileURLToPath(import.meta.url));
-            const filePath = path.resolve(__dirname, '..', imagePath.replace(/^\/+/, ''));
-            
-            // Check if the file exists before deleting
-            await fs.unlink(filePath, (err) => {
-                if (err) {
-                    console.error('Error deleting image file:', err);
-                    return res.status(500).json({ message: 'Error deleting image file', error: err.message });
-                }
-                console.log('Image file deleted successfully');
-            });
-
-        }
+        await Food.VerifyFoodType(deleteFood.tag);
 
         res.status(200).json({
-            message: 'Deleted Food completely',
+            message: 'Deleted food completely',
             DeletedData : deleteFood
         });
 
