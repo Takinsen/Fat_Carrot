@@ -136,8 +136,8 @@ function displayFoodData(foodData, clearEnable = true) {
                 
 
                 foodDataDiv.children[index].addEventListener('click', function(){
-                  console.log(msg.imagePath)
-                  deletcData(msg.id);
+                  console.log(msg._id)
+                  deletcData(msg._id);
                 })
                 documentFragment.appendChild(foodDataDiv)
             });
@@ -340,7 +340,7 @@ document.getElementById("submitUser").addEventListener('click', async function(e
 })
 
 function deletcData(foodId){
-    fetch(`${apiUrl}/deleteFood?foodId=${foodId}`, {
+    fetch(`${apiUrl}/deleteFoodData/${foodId}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json'
