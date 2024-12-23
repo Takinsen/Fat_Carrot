@@ -66,6 +66,19 @@ function listenForUpdates() {
     }, 3500); // Check every 10 seconds
 }
 
+function loadingAnimation(){
+    let dot = 1;
+    return setInterval(()=>{
+        if(dot === 3){
+            dot = 1;
+            foodDataContainer.innerText = `Please waiting for food.`
+        }
+        else{
+            dot += 1;
+            foodDataContainer.innerText += '.';
+        }
+    } , 200);
+}
 
 // Fetch user count
 async function fetchUserCount() {
@@ -81,11 +94,15 @@ async function fetchUserCount() {
 async function fetchFoodData(search) {
     //const search = document.getElementById('searchField').value;
 
+    const loading = loadingAnimation();
+
     const response = await fetch(`${apiUrl}/foodData?search=${search}`);
     const foodData = await response.json();
     console.log(foodData);
     const nameText = currentUser
- 
+    
+    clearInterval(loading);
+
     displayFoodData(foodData);
     //window.scroll(0, document.body.scrollHeight);
     //console.log(messages);
@@ -93,18 +110,7 @@ async function fetchFoodData(search) {
 
 async function fetchFoodType() {
 
-    foodDataContainer.innerText = `Please waiting for food.`
-    let dot = 1;
-    let loading = setInterval(()=>{
-        if(dot === 3){
-            dot = 1;
-            foodDataContainer.innerText = `Please waiting for food.`
-        }
-        else{
-            dot += 1;
-            foodDataContainer.innerText += '.';
-        }
-    } , 200);
+    const loading = loadingAnimation();
 
     const search = document.getElementById('searchField').value;
     const response = await fetch(`${apiUrl}/foodType?search=${search}`);
