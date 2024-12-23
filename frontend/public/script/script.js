@@ -80,6 +80,7 @@ async function fetchUserCount() {
 // Fetch messages and display them / scroll to bottom
 async function fetchFoodData(search) {
     //const search = document.getElementById('searchField').value;
+
     const response = await fetch(`${apiUrl}/foodData?search=${search}`);
     const foodData = await response.json();
     console.log(foodData);
@@ -91,12 +92,28 @@ async function fetchFoodData(search) {
 }
 
 async function fetchFoodType() {
+
+    foodDataContainer.innerText = `Please waiting for food.`
+    let dot = 1;
+    let loading = setInterval(()=>{
+        if(dot === 3){
+            dot = 1;
+            foodDataContainer.innerText = `Please waiting for food.`
+        }
+        else{
+            dot += 1;
+            foodDataContainer.innerText += '.';
+        }
+    } , 200);
+
     const search = document.getElementById('searchField').value;
     const response = await fetch(`${apiUrl}/foodType?search=${search}`);
     const foodData = await response.json();
     console.log(foodData);
     const nameText = currentUser
- 
+    
+    clearInterval(loading);
+
     displayFoodTypes(foodData);
     //window.scroll(0, document.body.scrollHeight);
     //console.log(messages);
