@@ -35,6 +35,19 @@ export const getPublicId = (url) => {
     return publicID ? `${publicID}/${filePath}` : filePath;
 };
 
+export const uploadToCloudinary = (fileBuffer , folderName) => {
+    return new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { folder: folderName }, // Cloudinary options
+        (error, result) => {
+          if (error) return reject(error); // Reject promise on error
+          resolve(result); // Resolve promise with the upload result
+        }
+      );
+      stream.end(fileBuffer); // Send file buffer to Cloudinary
+    });
+  };
+
 export const compressImages = async(sourcePath, saveDirectory, mode = 'replace', checkMode = false) => {
     const SIZE_LIMIT = 70000; // File size limit in bytes (e.g., 70 KB)
     try {

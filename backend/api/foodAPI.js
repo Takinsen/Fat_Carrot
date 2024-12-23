@@ -1,48 +1,15 @@
 import express from 'express';
 import multer from 'multer';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { v2 as cloudinary } from 'cloudinary';
 import allfood from '../model/foodData.js';
 import typefood from '../model/foodType.js';
 import * as Image from '../script/imageScript.js';
 import * as Food from '../script/foodScript.js';
 
-const Food_API = express.Router();
-
 // -------------- Configuration -------------- //
 
-const foodDataStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadDir = 'uploads/'; // Directory to store uploaded files
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir); // Create the directory if it doesn't exist
-        }
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(file.originalname)}`;
-        cb(null, uniqueName);
-    }
-});
-
-const foodTypeStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadDir = 'uploads/foodProfile'; // Directory to store uploaded files
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir); // Create the directory if it doesn't exist
-        }
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(file.originalname)}`;
-        cb(null, uniqueName);
-    }
-});
-
-const uploadFoodType = multer({ storage: foodTypeStorage });
-const uploadFoodData = multer({ storage: foodDataStorage });
+const Food_API = express.Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
 // -------------- API -------------- //
 
@@ -80,7 +47,7 @@ Food_API.get('/foodType', async(req , res)=>{
 
 });
 
-Food_API.post('/addFoodData', uploadFoodData.single('image') , async(req , res)=>{
+Food_API.post('/addFoodData', upload.single('image') , async(req , res)=>{
 
     try{
         const request = {
@@ -94,10 +61,8 @@ Food_API.post('/addFoodData', uploadFoodData.single('image') , async(req , res)=
             return res.status(400).json({ error: 'Name, calorie data, and image are required.' });
         }
 
-        // Upload image to cloud
-        const result = await cloudinary.uploader.upload(req.file.path, {
-            folder: 'allFoodImage'
-        });
+        // Upload image to Cloudinary
+        const result = await Image.uploadToCloudinary(req.file.buffer , 'allFoodImage');
 
         // Create data in database
         const newFood = await allfood.create({ 
@@ -115,6 +80,9 @@ Food_API.post('/addFoodData', uploadFoodData.single('image') , async(req , res)=
             newFood : newFood
         }); 
 
+        const stream = cloudinary.uploader.upload_stream(result);
+        stream.end(req.file.buffer);
+
     }
     catch(err){
         res.status(500).json({
@@ -125,7 +93,7 @@ Food_API.post('/addFoodData', uploadFoodData.single('image') , async(req , res)=
 
 });
 
-Food_API.post('/uploadFoodProfile', uploadFoodType.single('image') , async(req , res)=>{
+Food_API.post('/uploadFoodProfile', upload.single('image') , async(req , res)=>{
 
     try{
         const tag = req.body.tag;
@@ -148,10 +116,8 @@ Food_API.post('/uploadFoodProfile', uploadFoodType.single('image') , async(req ,
         // const publicID = Image.getPublicId(selectFood.imageCloudPath);
         // await cloudinary.uploader.destroy(publicID);
 
-        // Upload image to cloud
-        const result = await cloudinary.uploader.upload(req.file.path, {
-            folder: 'FoodProfile'
-        });
+        // Upload image to Cloudinary
+        const result = await Image.uploadToCloudinary(req.file.buffer , 'FoodProfile');
 
         // Update imageCloudPath
         selectFood.imageCloudPath = result.secure_url;
