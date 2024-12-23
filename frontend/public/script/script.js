@@ -1,5 +1,6 @@
-const apiUrl = 'http://pieboard.thddns.net:6994/api';
-const Url = 'http://pieboard.thddns.net:6994';
+const apiUrl = 'http://localhost:84/api';
+const Url = 'http://localhost:84';
+// Test localhost:84
 // production url pieboard.thddns.net:6994
 // Fetch and display all messages when the page loads
 let selectedgroup = "default";
@@ -103,7 +104,7 @@ async function fetchFoodType() {
 }
 
 
-// Display messages in colorful blocks
+// Display food Data
 function displayFoodData(foodData, clearEnable = true) {
     const foodDataContainer = document.getElementById('foodDataContainer');
     if (clearEnable){
@@ -116,20 +117,29 @@ function displayFoodData(foodData, clearEnable = true) {
                 foodDataDiv.className = 'foods';
                 foodDataDiv.id = msg.imagePath;
                 foodDataDiv.dataset.select = '0';
-                console.log(msg.name)
+                //console.log(msg.name)
+                let nameShow;
+                console.log(msg.name.length)
+                if (msg.name.length <= 25){
+                    nameShow = msg.name;
+                }
+                else{
+                    nameShow = msg.name.substring(0, 14) + '...'
+                }
                 foodDataDiv.innerHTML = `${drawImage(Url + msg.imagePath, "foodDataImage")} 
-                <div class="foodnameLable">${msg.name}</div>  
+                <div class="foodnameLable">${nameShow}</div>  
                 ${drawImage("ui-image/carrot@5x.png", "foodTypeCalImage")}
                 <div class="foodcalLable">${msg.cal}</div>
                 <img class="foodTypeLocImage" src="ui-image/location.app@5x.png">
                 <div class="foodLocLable" id="FoodLocPreview">${msg.loc}</div>
                 <div class="foodTagLable" id="foodTagPreview"># ${msg.tag}</div>
+                <div class="foodTextFader"></div>
                 <div class="selectTypeButton">
                 ${drawImage("ui-image/plus@5x.png", "selectTypeIcon")}
                 </div>
                 `;
 
-                const index = 7;
+                const index = 8;
                 if (selectedDataSet.has(msg.imagePath)){
                         foodDataDiv.children[index].style.rotate = '45deg';
                         foodDataDiv.children[index].style.backgroundColor = 'rgb(255, 116, 36)';

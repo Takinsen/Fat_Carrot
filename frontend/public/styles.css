@@ -117,8 +117,8 @@ body{
   position: absolute;
   top: 150px;
   left: 10px;
-  font-size: 22px;
-  width: 100%;
+  font-size: 24px;
+  width: 95%;
   font-weight: 600;
   display: inline-block;
   vertical-align: top;
@@ -173,6 +173,15 @@ body{
   object-fit: cover;
   vertical-align: top;
   display: inline-block;
+}
+.foodTextFader{
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-color: rgb(255, 255, 255);
+  bottom: 0px;
+  right: 0px;
+  filter: blur(5px);
 }
 
 .foodTypes{

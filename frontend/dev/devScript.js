@@ -1,5 +1,6 @@
-const apiUrl = 'http://pieboard.thddns.net:6994/api';
-const Url = 'http://pieboard.thddns.net:6994';
+const apiUrl = 'http://localhost:84/api';
+const Url = 'http://localhost:84';
+// Test localhost:84
 // production url pieboard.thddns.net:6994
 // Fetch and display all messages when the page loads
 let selectedgroup = "default";
