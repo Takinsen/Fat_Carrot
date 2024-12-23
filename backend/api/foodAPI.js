@@ -94,13 +94,12 @@ Food_API.post('/addFoodData', uploadFoodData.single('image') , async(req , res)=
             return res.status(400).json({ error: 'Name, calorie data, and image are required.' });
         }
 
-        await Food.UpdateAfterPost(request);
-
         // Upload image to cloud
         const result = await cloudinary.uploader.upload(req.file.path, {
             folder: 'allFoodImage'
         });
 
+        // Create data in database
         const newFood = await allfood.create({ 
             name : request.name,
             cal : request.cal,
@@ -109,8 +108,11 @@ Food_API.post('/addFoodData', uploadFoodData.single('image') , async(req , res)=
             imageCloudPath : result.secure_url
         });
 
+        await Food.UpdateAfterPost(request);
+
         res.status(201).json({
-            message : "Upload new food completed"
+            message : "Upload new food completed",
+            newFood : newFood
         }); 
 
     }
@@ -217,12 +219,11 @@ Food_API.delete('/deleteFoodData/:id' , async(req , res)=>{
             return res.status(404).json({ message: 'Food not found' });
         }
 
-        // Delete Image
+        await Food.VerifyFoodType(deleteFood.tag);
 
+        // Delete Image
         const publicID = Image.getPublicId(deleteFood.imageCloudPath);
         await cloudinary.uploader.destroy(publicID);
-
-        await Food.VerifyFoodType(deleteFood.tag);
 
         res.status(200).json({
             message: 'Deleted food completely',

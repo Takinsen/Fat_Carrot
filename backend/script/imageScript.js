@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import allfood from '../model/foodData.js';
 import typefood from '../model/foodType.js';
 
-const getAllImageUrls = async()=>{
+export const getAllImageUrls = async()=>{
     let allImages = [];
     let nextCursor = null;
     try {
@@ -27,28 +27,6 @@ const getAllImageUrls = async()=>{
         console.error('Error fetching images:', error);
         return [];
       }
-}
-
-function sanitizeFilename(url) {
-    const originalName = url.split('.')[0]; // Get the part before the underscore
-    return originalName;
-}
-
-export const downloadImageFromCloudinary = async() => {
-
-    try {
-        const images = await getAllImageUrls();
-        console.log(`Found ${images.length} images.`);
-
-        images.forEach(async(image) =>{
-            console.log(image);
-        })
-        
-        } 
-        catch (error) {
-            console.error('Error downloading all images:', error);
-        }
-
 }
 
 export const getPublicId = (url) => {
