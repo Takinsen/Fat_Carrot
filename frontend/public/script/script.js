@@ -92,16 +92,84 @@ async function fetchFoodData(search) {
 }
 
 async function fetchFoodType() {
+    const foodDataContainer = document.getElementById('foodDataContainer');
     const search = document.getElementById('searchField').value;
-    const response = await fetch(`${apiUrl}/foodType?search=${search}`);
-    const foodData = await response.json();
-    console.log(foodData);
-    const nameText = currentUser
- 
-    displayFoodTypes(foodData);
-    //window.scroll(0, document.body.scrollHeight);
-    //console.log(messages);
+
+    let loadTimeout; // To hold the timeout ID
+
+    const loadingThreshold = 300;
+    loadTimeout = setTimeout(() => {
+        loadScreen(foodDataContainer, "The Carrot is thinking please wait...");
+    }, loadingThreshold);
+
+    try {
+        const response = await fetch(`${apiUrl}/foodType?search=${search}`);
+        const foodData = await response.json();
+
+        clearTimeout(loadTimeout); // Prevent loading screen if data is fetched quickly
+        console.log(foodData);
+
+        displayFoodTypes(foodData);
+    } catch (error) {
+        clearTimeout(loadTimeout); // Ensure the timeout is cleared on error
+        console.error("Error fetching food type:", error);
+    }
 }
+
+// Loading screen
+function loadScreen(loadContainer, loadingMessage){
+    
+    const message = wrapCharactersInParagraphs(loadingMessage);
+
+    loadContainer.innerHTML = `
+    <div class="loadingScreen pulse-opacity">
+        <div class="loadingContent">
+             ${drawImage("ui-image/FatCarrot black icon.png", "LoadingImage")}
+             <div>
+              ${message}
+             </div>
+            
+        </div>
+    </div>
+    `;
+
+    const loadingScreen = document.querySelector('.loadingScreen');
+ 
+        for (let el of loadingScreen.children[0].children[1].children) {
+            el.style.display = 'inline-block';
+            el.style.transition = '0.2s ease-in-out';
+        }
+
+        const playAnimation = () => {
+            const children = loadingScreen.children[0].children[1].children;
+        
+            let delay = 0;
+            for (let el of children) {
+                setTimeout(() => {
+                    el.style.scale = '1.5';
+                    el.style.transform = 'translateY(-5px)';
+                    setTimeout(() => {
+                        el.style.scale = '1';
+                        el.style.transform = 'translateY(0)';
+                    }, 180);
+                }, delay);
+        
+                delay += 50;
+            }
+        };
+
+        playAnimation();
+        setInterval(playAnimation, loadingMessage.length * 50 + 1000);
+        
+}
+
+function wrapCharactersInParagraphs(text) {
+    return text
+      .split("")
+      .map((char) => `<p>${char === " " ? "&nbsp;" : char}</p>`)
+      .join("");
+  }
+
 
 
 // Display food Data
