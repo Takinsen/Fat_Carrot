@@ -8,6 +8,7 @@ let currentUser = "guest"
 
 let selectedCal = 0;
 let selectedNum = 0;
+let selectedImage = null;
 
 const selectedDataSet = new Set();
 const selectedTypeSet = new Set();
@@ -19,6 +20,47 @@ window.onload = async function() {
     //fetchFoodTag();
 };
 
+function saveAndPerviewImage(event) {
+    const file = event.target.files[0];
+    selectedImage = file ? file : null;
+};
+
+async function uploadFoodProfile(){
+
+    const search = document.getElementById('TagSearchField').value;
+    const button = document.getElementById('UploadFoodProfileButton');
+    const response = await fetch(`${apiUrl}/foodType?search=${search}`);
+    const foodData = await response.json();
+    console.log(foodData.length);
+    const color = button.style.backgroundColor;
+    if(foodData.length == 1){
+        const formData = new FormData();
+        formData.append('tag', search);
+        formData.append('image', selectedImage);
+        try{
+            console.log('Posting...');
+            await fetch(`${apiUrl}/uploadFoodProfile`, {
+                method: 'POST',
+                body: formData // Send FormData directly
+            });
+            console.log('Post Completed');
+            button.innerText = "Completed!";
+            button.style.backgroundColor = 'green';
+        }
+        catch(err){
+            button.innerText = "Failed!";
+        }
+    }
+    else{
+        button.style.backgroundColor = 'red';
+        button.innerText = 'Invalid Tag';
+    }
+    setTimeout(function(){
+        button.style.backgroundColor = color;
+        button.innerText = 'Upload';
+    },1000)
+
+}
 
 // Function to listen for SSE updates
 function listenForUpdates() {

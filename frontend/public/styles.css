@@ -84,6 +84,63 @@ body{
   font-size: 15px;
   font-weight: 600;
 }
+
+#uploadFoodSection{
+  width: 350px;
+  height: 50px;
+  position: fixed;
+  top: 5px;
+  left: 280px;
+  z-index: 100;
+  border-radius: 10px;
+  margin-top: 10px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+#TagSearchField{
+  width: 100px;
+  position: absolute;
+  border-radius: 30px;
+  height: 15px;
+  left: 96px;
+  padding-left: 6px;
+}
+
+#uploadFoodProfileImageButton{
+  left: 0px;
+  top: 5px;
+  position: absolute;
+  display: inline-block;
+  background-color: rgb(255, 116, 36);
+  border-radius: 30px;
+  height: 40px;
+  width: 40px;
+  transition: all 0.5s cubic-bezier(.65,-0.28,.34,1.19);
+  cursor: pointer;
+}
+
+#UploadFoodProfileButton {
+  width: 90px;
+  height: 28px;
+  border-radius: 30px;
+  background-color: rgb(255, 116, 36);
+  text-align: center;
+  align-content: center;
+  cursor: pointer;
+}
+
+#UploadFoodProfileFile{
+  height: 21px;
+  width: 400px;
+  left: 96px;
+  top: 0px;
+  position: absolute;
+}
+
 #topFader{
   position: fixed;
   width: 100%;
@@ -618,7 +675,7 @@ body{
 }
 .icon5{
   opacity: 0.5;
-  height: 18px;
+  height: 20px;
   position: absolute;
   top: 5px;
   left: 6px;
@@ -629,6 +686,13 @@ body{
   position: absolute;
   left: 1px;
   top: 2px;
+}
+.uploadFoodProfileIcon{
+  opacity: 0.5;
+  height: 20px;
+  position: absolute;
+  top: 5px;
+  left: 6px;
 }
 /* Hide scrollbar for Chrome, Safari and Opera */
 .noscrollbar::-webkit-scrollbar {

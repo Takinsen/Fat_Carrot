@@ -101,7 +101,6 @@ Food_API.post('/uploadFoodProfile', upload.single('image') , async(req , res)=>{
         if (!tag || !req.file) {
             return res.status(400).json({ 
                 error: 'tag and image are required.' ,
-                imagePath : imagePath ,
                 tag : tag
             });
         }

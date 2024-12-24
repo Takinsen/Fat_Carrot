@@ -38,6 +38,13 @@
     </div>
     <div id="selectedNumContainer">0</div>
     <div id="selectedCalContainer">0</div>
+    <div id="uploadFoodSection">
+      <div id="UploadFoodProfileButton" onclick="uploadFoodProfile()">Upload</div>
+      <div id="TagSearchContainer">
+        <input type="text" id="TagSearchField" placeholder="Food tags" required>
+      </div>
+      <input type="file" id="UploadFoodProfileFile" accept="image/*" onchange="saveAndPerviewImage(event)">
+    </div>
     <div class="topBarLable" style="top: 15px; left: 205px;">Items</div>
     <div class="topBarLable" style="top: 39px; left: 205px;">Cal</div>
     <div id="logoContainer">
