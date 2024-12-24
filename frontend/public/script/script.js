@@ -1,5 +1,5 @@
-const apiUrl = 'https://fat-carrot-backend.onrender.com/api';
-const Url = 'https://fat-carrot-backend.onrender.com';
+const apiUrl = 'http://localhost:84/api';
+const Url = 'http://localhost:84';
 // production url pieboard.thddns.net:6994
 // Fetch and display all messages when the page loads
 let selectedgroup = "default";
@@ -109,24 +109,87 @@ async function fetchFoodData(search) {
 }
 
 async function fetchFoodType() {
-
-    const loading = loadingAnimation();
-
+    const foodDataContainer = document.getElementById('foodDataContainer');
     const search = document.getElementById('searchField').value;
-    const response = await fetch(`${apiUrl}/foodType?search=${search}`);
-    const foodData = await response.json();
-    console.log(foodData);
-    const nameText = currentUser
-    
-    clearInterval(loading);
 
-    displayFoodTypes(foodData);
-    //window.scroll(0, document.body.scrollHeight);
-    //console.log(messages);
+    let loadTimeout; // To hold the timeout ID
+
+    const loadingThreshold = 300;
+    loadTimeout = setTimeout(() => {
+        loadScreen(foodDataContainer, "The Carrot is thinking please wait...");
+    }, loadingThreshold);
+
+    try {
+        const response = await fetch(`${apiUrl}/foodType?search=${search}`);
+        const foodData = await response.json();
+
+        clearTimeout(loadTimeout); // Prevent loading screen if data is fetched quickly
+        console.log(foodData);
+
+        displayFoodTypes(foodData);
+    } catch (error) {
+        clearTimeout(loadTimeout); // Ensure the timeout is cleared on error
+        console.error("Error fetching food type:", error);
+    }
 }
 
+// Loading screen
+function loadScreen(loadContainer, loadingMessage){
+    
+    const message = wrapCharactersInParagraphs(loadingMessage);
 
-// Display messages in colorful blocks
+    loadContainer.innerHTML = `
+    <div class="loadingScreen pulse-opacity">
+        <div class="loadingContent">
+             ${drawImage("ui-image/FatCarrot black icon.png", "LoadingImage")}
+             <div>
+              ${message}
+             </div>
+            
+        </div>
+    </div>
+    `;
+
+    const loadingScreen = document.querySelector('.loadingScreen');
+ 
+        for (let el of loadingScreen.children[0].children[1].children) {
+            el.style.display = 'inline-block';
+            el.style.transition = '0.2s ease-in-out';
+        }
+
+        const playAnimation = () => {
+            const children = loadingScreen.children[0].children[1].children;
+        
+            let delay = 0;
+            for (let el of children) {
+                setTimeout(() => {
+                    el.style.scale = '1.5';
+                    el.style.transform = 'translateY(-5px)';
+                    setTimeout(() => {
+                        el.style.scale = '1';
+                        el.style.transform = 'translateY(0)';
+                    }, 180);
+                }, delay);
+        
+                delay += 50;
+            }
+        };
+
+        playAnimation();
+        setInterval(playAnimation, loadingMessage.length * 50 + 1000);
+        
+}
+
+function wrapCharactersInParagraphs(text) {
+    return text
+      .split("")
+      .map((char) => `<p>${char === " " ? "&nbsp;" : char}</p>`)
+      .join("");
+  }
+
+
+
+// Display food Data
 function displayFoodData(foodData, clearEnable = true) {
     const foodDataContainer = document.getElementById('foodDataContainer');
     if (clearEnable){
@@ -139,20 +202,29 @@ function displayFoodData(foodData, clearEnable = true) {
                 foodDataDiv.className = 'foods';
                 foodDataDiv.id = msg.imagePath;
                 foodDataDiv.dataset.select = '0';
-                console.log(msg.name)
+                //console.log(msg.name)
+                let nameShow;
+                console.log(msg.name.length)
+                if (msg.name.length <= 25){
+                    nameShow = msg.name;
+                }
+                else{
+                    nameShow = msg.name.substring(0, 14) + '...'
+                }
                 foodDataDiv.innerHTML = `${drawImage(msg.imageCloudPath, "foodDataImage")} 
-                <div class="foodnameLable">${msg.name}</div>  
+                <div class="foodnameLable">${nameShow}</div>  
                 ${drawImage("ui-image/carrot@5x.png", "foodTypeCalImage")}
                 <div class="foodcalLable">${msg.cal}</div>
                 <img class="foodTypeLocImage" src="ui-image/location.app@5x.png">
                 <div class="foodLocLable" id="FoodLocPreview">${msg.loc}</div>
                 <div class="foodTagLable" id="foodTagPreview"># ${msg.tag}</div>
+                <div class="foodTextFader"></div>
                 <div class="selectTypeButton">
                 ${drawImage("ui-image/plus@5x.png", "selectTypeIcon")}
                 </div>
                 `;
 
-                const index = 7;
+                const index = 8;
                 if (selectedDataSet.has(msg.imagePath)){
                         foodDataDiv.children[index].style.rotate = '45deg';
                         foodDataDiv.children[index].style.backgroundColor = 'rgb(255, 116, 36)';
