@@ -16,121 +16,14 @@ const selectedCatSet  = new Set();
 window.onload = async function() {
     // Start listening for server-sent events (SSE)
     fetchFoodType();
-    fetchFoodTag();
+    //fetchFoodTag();
 };
 
-
-// Function to listen for SSE updates
-function listenForUpdates() {
-    let eventSource = new EventSource(`${apiUrl}/notify`);
-
-    // Handle incoming messages
-    eventSource.onmessage = function(event) {
-        if (event.data === 'fetch') {
-          fetchFoodData(); // Trigger fetch when notified by the server
-        } else if (event.data === 'clientUpdate') {
-            fetchUserCount();
-        }
-    };
-
-    // Error handler (optional)
-    eventSource.onerror = function(error) {
-        console.error('EventSource encountered an error: ', error);
-    };
-
-    // Periodically check the connection status every 3.5 seconds
-    setInterval(() => {
-        if (eventSource.readyState !== 1) { // 1 means connection is open
-            console.warn('SSE connection lost. Reconnecting...');
-            eventSource.close();  // Close the existing connection
-            eventSource = new EventSource(`${apiUrl}/notify`);  // Reconnect
-
-              // Handle the new connection
-              eventSource.onopen = function() {
-                // Only fetch messages when the new connection is open
-                fetchFoodData();
-                fetchUserCount();
-            };
-
-               // Handle incoming messages
-            eventSource.onmessage = function(event) {
-                if (event.data === 'fetch') {
-                  fetchFoodData(); // Trigger fetch when notified by the server
-                } else if (event.data === 'clientUpdate') {
-                    fetchUserCount();
-                }
-            };
-            
-            
-        }
-    }, 3500); // Check every 10 seconds
-}
-
-function loadingAnimation(){
-    let dot = 1;
-    return setInterval(()=>{
-        if(dot === 3){
-            dot = 1;
-            foodDataContainer.innerText = `Please waiting for food.`
-        }
-        else{
-            dot += 1;
-            foodDataContainer.innerText += '.';
-        }
-    } , 200);
-}
-
-// Fetch user count
-async function fetchUserCount() {
-    const response = await fetch(`${apiUrl}/userCount`);
-    const userCount = await response.json();
-    //console.log(userCount)
-    document.getElementById("userCount").innerHTML = `on&nbsp;&nbsp;${userCount.count}`
-
-}
-
-
-// Fetch messages and display them / scroll to bottom
-async function fetchFoodData(search) {
-    //const search = document.getElementById('searchField').value;
-
-    const loading = loadingAnimation();
-
-    const response = await fetch(`${apiUrl}/foodData?search=${search}`);
-    const foodData = await response.json();
-    console.log(foodData);
-    const nameText = currentUser
-    
-    clearInterval(loading);
-
-    displayFoodData(foodData);
-    //window.scroll(0, document.body.scrollHeight);
-    //console.log(messages);
-}
-
-async function fetchFoodType() {
-    const foodDataContainer = document.getElementById('foodDataContainer');
-    const search = document.getElementById('searchField').value;
-
-    let loadTimeout; // To hold the timeout ID
-
-    const loadingThreshold = 300;
-    loadTimeout = setTimeout(() => {
-        loadScreen(foodDataContainer, "The Carrot is thinking please wait...");
-    }, loadingThreshold);
-
-    try {
-        const response = await fetch(`${apiUrl}/foodType?search=${search}`);
-        const foodData = await response.json();
-
-        clearTimeout(loadTimeout); // Prevent loading screen if data is fetched quickly
-        console.log(foodData);
-
-        displayFoodTypes(foodData);
-    } catch (error) {
-        clearTimeout(loadTimeout); // Ensure the timeout is cleared on error
-        console.error("Error fetching food type:", error);
-    }
+function wrapCharactersInParagraphs(text) {
+    return text
+      .split("")
+      .map((char) => `<p>${char === " " ? "&nbsp;" : char}</p>`)
+      .join("");
 }
 
 // Loading screen
@@ -180,14 +73,100 @@ function loadScreen(loadContainer, loadingMessage){
         
 }
 
-function wrapCharactersInParagraphs(text) {
-    return text
-      .split("")
-      .map((char) => `<p>${char === " " ? "&nbsp;" : char}</p>`)
-      .join("");
-  }
+// Function to listen for SSE updates
+function listenForUpdates() {
+    let eventSource = new EventSource(`${apiUrl}/notify`);
+
+    // Handle incoming messages
+    eventSource.onmessage = function(event) {
+        if (event.data === 'fetch') {
+          fetchFoodData(); // Trigger fetch when notified by the server
+        } else if (event.data === 'clientUpdate') {
+            fetchUserCount();
+        }
+    };
+
+    // Error handler (optional)
+    eventSource.onerror = function(error) {
+        console.error('EventSource encountered an error: ', error);
+    };
+
+    // Periodically check the connection status every 3.5 seconds
+    setInterval(() => {
+        if (eventSource.readyState !== 1) { // 1 means connection is open
+            console.warn('SSE connection lost. Reconnecting...');
+            eventSource.close();  // Close the existing connection
+            eventSource = new EventSource(`${apiUrl}/notify`);  // Reconnect
+
+              // Handle the new connection
+              eventSource.onopen = function() {
+                // Only fetch messages when the new connection is open
+                fetchFoodData();
+                fetchUserCount();
+            };
+
+               // Handle incoming messages
+            eventSource.onmessage = function(event) {
+                if (event.data === 'fetch') {
+                  fetchFoodData(); // Trigger fetch when notified by the server
+                } else if (event.data === 'clientUpdate') {
+                    fetchUserCount();
+                }
+            };
+            
+            
+        }
+    }, 3500); // Check every 10 seconds
+}
+
+// Fetch user count
+async function fetchUserCount() {
+    const response = await fetch(`${apiUrl}/userCount`);
+    const userCount = await response.json();
+    //console.log(userCount)
+    document.getElementById("userCount").innerHTML = `on&nbsp;&nbsp;${userCount.count}`
+
+}
 
 
+// Fetch messages and display them / scroll to bottom
+async function fetchFoodData(search) {
+    //const search = document.getElementById('searchField').value;
+
+    const response = await fetch(`${apiUrl}/foodData?search=${search}`);
+    const foodData = await response.json();
+    console.log(foodData);
+    const nameText = currentUser
+
+    displayFoodData(foodData);
+    //window.scroll(0, document.body.scrollHeight);
+    //console.log(messages);
+}
+
+async function fetchFoodType() {
+    const foodDataContainer = document.getElementById('foodDataContainer');
+    const search = document.getElementById('searchField').value;
+
+    let loadTimeout; // To hold the timeout ID
+
+    const loadingThreshold = 300;
+    loadTimeout = setTimeout(() => {
+        loadScreen(foodDataContainer, "The Carrot is thinking please wait...");
+    }, loadingThreshold);
+
+    try {
+        const response = await fetch(`${apiUrl}/foodType?search=${search}`);
+        const foodData = await response.json();
+
+        clearTimeout(loadTimeout); // Prevent loading screen if data is fetched quickly
+        console.log(foodData);
+
+        displayFoodTypes(foodData);
+    } catch (error) {
+        clearTimeout(loadTimeout); // Ensure the timeout is cleared on error
+        console.error("Error fetching food type:", error);
+    }
+}
 
 // Display food Data
 function displayFoodData(foodData, clearEnable = true) {
