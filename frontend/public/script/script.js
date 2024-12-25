@@ -118,13 +118,11 @@ async function fetchFoodType() {
 
 // Loading screen
 function loadScreen(loadContainer, loadingMessage){
-    
     const message = wrapCharactersInParagraphs(loadingMessage);
-
     loadContainer.innerHTML = `
     <div class="loadingScreen pulse-opacity">
         <div class="loadingContent">
-             ${drawImage("ui-image/FatCarrot black icon.png", "LoadingImage")}
+             ${drawImage("ui-image/Carrot Think.png", "LoadingImage")}
              <div>
               ${message}
              </div>
@@ -140,7 +138,7 @@ function loadScreen(loadContainer, loadingMessage){
             el.style.transition = '0.2s ease-in-out';
         }
 
-        const playAnimation = () => {
+        const textAnimation = () => {
             const children = loadingScreen.children[0].children[1].children;
         
             let delay = 0;
@@ -154,13 +152,23 @@ function loadScreen(loadContainer, loadingMessage){
                     }, 180);
                 }, delay);
         
-                delay += 50;
+                delay += 40;
             }
         };
 
-        playAnimation();
-        setInterval(playAnimation, loadingMessage.length * 50 + 1000);
-        
+        const iconAniamtion = () => {
+            const children = loadingScreen.children[0].children[0]
+            children.style.transition = '1.5s ease-in-out';
+            children.style.transform = 'translateY(-8px)';
+            setTimeout(() => {
+                children.style.transform = 'translateY(0)';
+            }, 1500);
+        }
+
+        textAnimation();
+        iconAniamtion();
+        setInterval(iconAniamtion, 3000);
+        setInterval(textAnimation, loadingMessage.length * 50 + 1000);
 }
 
 function wrapCharactersInParagraphs(text) {

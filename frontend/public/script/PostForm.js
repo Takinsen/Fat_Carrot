@@ -58,6 +58,8 @@ async function post(e) {
             foodInputBlocker.style.display = 'none';
             uploadStatus.innerHTML = "Post completed";
 
+            foodPreview.classList.add('flow-out');
+
             // Clear the input fields and preview
             document.getElementById('foodDataName').value = '';
             document.getElementById('foodDataCal').value = '';
@@ -68,8 +70,17 @@ async function post(e) {
             postButton.style.backgroundColor = 'rgb(152, 152, 152)';
             window.scrollTo({top: 0,});
             selectedImage = null;
-    
+            summitableCheck(e);
             fetchFoodType();
+
+            setTimeout(function(){
+                foodPreview.classList.remove('flow-out');
+                foodPreview.classList.add('flow-in');
+            },500)
+            setTimeout(function(){
+                foodPreview.classList.remove('flow-in');
+            },1000)
+
         }
         catch (error) {
             uploadStatus.innerHTML = "Post failed";
@@ -78,13 +89,21 @@ async function post(e) {
             // Remove the load animation
             foodPreview.classList.remove('pulse-opacity');
             foodInputBlocker.style.display = 'none';
+
+            // Error animation
+            foodPreview.classList.add('vibrate-horizontal');
+            setTimeout(function(){
+                foodPreview.classList.remove('vibrate-horizontal');
+            },500)
         }
    
     } else {
         postButton.style.backgroundColor = 'red';
+        postButton.classList.add('vibrate-horizontal');
         uploadStatus.innerHTML = "Please fill the form";
         uploadStatus.style.color = 'red';
         setTimeout(function(){
+            postButton.classList.remove('vibrate-horizontal');
             postButton.style.backgroundColor = 'rgb(152, 152, 152)';
             uploadStatus.style.color = 'rgba(77, 77, 77, 0.507)';
         },500)

@@ -621,8 +621,8 @@ body{
 }
 
 .LoadingImage {
-  width: 30%;
-  height: 30%;
+  width: 40%;
+  height: 40%;
   object-fit: contain;
   opacity: 0.4;
   margin-bottom: 10px; 
@@ -689,6 +689,65 @@ body{
   }
 }
 
+@keyframes vibrateHorizontal {
+  0% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-5px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-5px);
+  }
+  80% {
+    transform: translateX(5px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes flowOut {
+  0% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(20px);
+    transform: translateY(-50px);
+  }
+}
+
+@keyframes flowIn {
+  0% {
+    opacity: 0;
+    filter: blur(20px);
+    transform: translateY(50px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
 .pulse-opacity {
   animation: opacityPulse 1.2s infinite ease-in-out;
+}
+
+.vibrate-horizontal {
+  animation: vibrateHorizontal 0.5s infinite ease-in-out;
+}
+
+.flow-out {
+  animation: flowOut 0.5s ease-in-out;
+}
+
+.flow-in {
+  animation: flowIn 0.5s ease-in-out;
 }
