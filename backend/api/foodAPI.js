@@ -47,6 +47,23 @@ Food_API.get('/foodType', async(req , res)=>{
 
 });
 
+Food_API.get('/foodTypeExactly', async(req , res)=>{
+
+    try{
+        const namefood = req.query.search || ''; 
+        const filter = namefood ? { name: namefood } : {};
+        const AllfoodType = await typefood.find(filter);
+        res.status(200).json(AllfoodType);
+    }
+    catch(err){
+        res.status(500).json({
+            message : "Error Fetching All Food Type",
+            error : err.message
+        })
+    }
+
+});
+
 Food_API.post('/addFoodData', upload.single('image') , async(req , res)=>{
 
     try{

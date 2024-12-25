@@ -29,16 +29,17 @@ async function uploadFoodProfile(){
 
     const search = document.getElementById('TagSearchField').value;
     const button = document.getElementById('UploadFoodProfileButton');
-    const response = await fetch(`${apiUrl}/foodType?search=${search}`);
-    const foodData = await response.json();
-    console.log(foodData.length);
     const color = button.style.backgroundColor;
-    if(foodData.length == 1){
+    button.innerText = "Uploading...";
+    button.style.backgroundColor = 'yellow';
+    const response = await fetch(`${apiUrl}/foodTypeExactly?search=${search}`);
+    const foodData = await response.json();
+    console.log(foodData);
+    if(foodData.length == 1 && selectedImage && search){
         const formData = new FormData();
         formData.append('tag', search);
         formData.append('image', selectedImage);
         try{
-            console.log('Posting...');
             await fetch(`${apiUrl}/uploadFoodProfile`, {
                 method: 'POST',
                 body: formData // Send FormData directly
@@ -49,11 +50,17 @@ async function uploadFoodProfile(){
         }
         catch(err){
             button.innerText = "Failed!";
+            button.style.backgroundColor = 'red';
         }
     }
     else{
         button.style.backgroundColor = 'red';
-        button.innerText = 'Invalid Tag';
+        if(!selectedImage){
+            button.innerText = 'Image Needed';
+        }
+        else{
+            button.innerText = 'Invalid Tag';
+        }
     }
     setTimeout(function(){
         button.style.backgroundColor = color;

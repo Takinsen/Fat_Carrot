@@ -102,11 +102,12 @@ body{
 }
 
 #TagSearchField{
-  width: 100px;
+  width: 76px;
   position: absolute;
   border-radius: 30px;
   height: 15px;
-  left: 96px;
+  left: 129px;
+  top: 30px;
   padding-left: 6px;
 }
 
@@ -124,7 +125,7 @@ body{
 }
 
 #UploadFoodProfileButton {
-  width: 90px;
+  width: 120px;
   height: 28px;
   border-radius: 30px;
   background-color: rgb(255, 116, 36);
@@ -133,12 +134,12 @@ body{
   cursor: pointer;
 }
 
-#UploadFoodProfileFile{
+#UploadFoodProfileFile {
   height: 21px;
-  width: 400px;
-  left: 96px;
-  top: 0px;
-  position: absolute;
+  width: 180px;
+  left: 10px;
+  top: -10px;
+  position: relative;
 }
 
 #topFader{
