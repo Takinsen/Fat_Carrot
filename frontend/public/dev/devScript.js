@@ -25,50 +25,6 @@ function saveAndPerviewImage(event) {
     selectedImage = file ? file : null;
 };
 
-async function uploadFoodProfile(){
-
-    const search = document.getElementById('TagSearchField').value;
-    const button = document.getElementById('UploadFoodProfileButton');
-    const color = button.style.backgroundColor;
-    button.innerText = "Uploading...";
-    button.style.backgroundColor = 'yellow';
-    const response = await fetch(`${apiUrl}/foodTypeExactly?search=${search}`);
-    const foodData = await response.json();
-    console.log(foodData);
-    if(foodData.length == 1 && selectedImage && search){
-        const formData = new FormData();
-        formData.append('tag', search);
-        formData.append('image', selectedImage);
-        try{
-            await fetch(`${apiUrl}/uploadFoodProfile`, {
-                method: 'POST',
-                body: formData // Send FormData directly
-            });
-            console.log('Post Completed');
-            button.innerText = "Completed!";
-            button.style.backgroundColor = 'green';
-        }
-        catch(err){
-            button.innerText = "Failed!";
-            button.style.backgroundColor = 'red';
-        }
-    }
-    else{
-        button.style.backgroundColor = 'red';
-        if(!selectedImage){
-            button.innerText = 'Image Needed';
-        }
-        else{
-            button.innerText = 'Invalid Tag';
-        }
-    }
-    setTimeout(function(){
-        button.style.backgroundColor = color;
-        button.innerText = 'Upload';
-    },1000)
-
-}
-
 // Function to listen for SSE updates
 function listenForUpdates() {
     let eventSource = new EventSource(`${apiUrl}/notify`);
@@ -172,12 +128,13 @@ function displayFoodData(foodData, clearEnable = true) {
                 <img class="foodTypeLocImage" src="../ui-image/location.app@5x.png">
                 <div class="foodLocLable" id="FoodLocPreview">${msg.loc}</div>
                 <div class="foodTagLable" id="foodTagPreview"># ${msg.tag}</div>
+                <div class="foodTextFader"></div>
                 <div class="selectTypeButton">
                 ${drawImage("../ui-image/plus@5x.png", "selectTypeIcon")}
                 </div>
                 `;
 
-                const index = 7;
+                const index = 8;
              
                 foodDataDiv.children[index].style.rotate = '45deg';
                 foodDataDiv.children[index].style.backgroundColor = 'red';
@@ -186,7 +143,7 @@ function displayFoodData(foodData, clearEnable = true) {
 
                 foodDataDiv.children[index].addEventListener('click', function(){
                   console.log(msg._id)
-                  deletcData(msg._id);
+                  deletePopup(msg._id);
                 })
                 documentFragment.appendChild(foodDataDiv)
             });
@@ -210,12 +167,12 @@ function displayFoodTypes(foodData, clearEnable = true) {
                 console.log(msg.name)
                 foodDataDiv.innerHTML = `${drawImage(msg.imageCloudPath, "foodTypeImage")} 
                 <div class="foodTypenameLable">${msg.name}</div>  
-                ${drawImage("ui-image/carrot@5x.png", "foodTypeCalImage")}
+                ${drawImage("../ui-image/carrot@5x.png", "foodTypeCalImage")}
                 <div class="foodTypecalLable">${msg.avgCal}</div>
                 <div class="selectTypeButton">
-                ${drawImage("ui-image/plus@5x.png", "selectTypeIcon")}
+                ${drawImage("../ui-image/plus@5x.png", "selectTypeIcon")}
                 </div>
-                ${drawImage("ui-image/xmark.triangle.circle.square@5x.png", "foodTypeCountImage")}
+                ${drawImage("../ui-image/xmark.triangle.circle.square@5x.png", "foodTypeCountImage")}
                 <div class="foodTypeCountLable">${msg.num}</div>
                 `;
 
@@ -387,6 +344,23 @@ document.getElementById("submitUser").addEventListener('click', async function(e
     
    
 })
+
+function deletePopup(foodId){
+    const deletePopup = document.getElementById("deletePopup");
+    deletePopup.style.display = "block";
+    const deleteButton = document.getElementById("deleteButton");
+    const cancleDeleteButton = document.getElementById("cancleDeleteButton");
+
+    deleteButton.addEventListener('click', function(){
+        deletcData(foodId);
+        deletePopup.style.display = "none";
+        fetchFoodData("");
+    })
+
+    cancleDeleteButton.addEventListener('click', function(){
+        deletePopup.style.display = "none";
+    })
+}
 
 function deletcData(foodId){
     fetch(`${apiUrl}/deleteFoodData/${foodId}`, {
