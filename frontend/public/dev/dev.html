@@ -13,20 +13,32 @@
 </head>
 <body class="noscrollbar">
     <div id="foodDataContainer"></div>
-
+    <form id="foodDataForm">
+      <div id="foodDataTextContainer">
+        <input type="text" class="foodDataInput" id="TagSearch" placeholder="Search tag" required>
+        <div id="tagContainer" class="noscrollbar"></div>
+        <div id="tagContainerBorder" style="width: calc(100% - 22px);"></div>
+      </div>
+      <div id="uploadFoodSection">
+        <div id="uploadFoodProfileTagPreview">Tag</div>
+        <div id="UploadFoodProfileButton" onclick="uploadFoodProfile()">Upload</div>
+        <input type="file" id="UploadFoodProfileFile" accept="image/*" onchange="saveAndPerviewImage(event)">
+      </div>
+    </form>
     <form id="searchBar">
       <div id="SearchContainer" style="left: 5px; right: 95px;">
         <input type="text" id="searchField" placeholder="Search..." required>
       </div>
       <div id="addButton" onclick="addMode(), fetchFoodTag()">
-        <img class="icon4"  style="margin-left: 8.5px; margin-top:8.5px;
-         transition: all 0.8s cubic-bezier(.65,-0.28,.34,1.19);
-        " src="../ui-image/widget.small.badge.plus@5x.png">
+        <img class="icon4"  style="margin-left: 13px; margin-top:12.5px; width: 22px;
+         transition: all 0.8s cubic-bezier(.65,-0.28,.34,1.19); filter: invert(1);
+        " src="../ui-image/list.triangle@5x.png">
       </div>
-      <div id="filterSelectButton" onclick="selectBoxMode()">
-        <img class="icon6"  style="margin-left: 8.5px; margin-top:8.5px;
+      <div id="filterSelectButton" onclick="typeMode()">
+        <img class="icon6"  style="margin-left: 7px; margin-top:6px;
+        width: 23px;
          transition: all 0.8s cubic-bezier(.65,-0.28,.34,1.19);
-        " src="../ui-image/archivebox@5x.png">
+        " src="../ui-image/tag@5x.png">
       </div>
     </form>
     <div id="topFader"></div>
@@ -36,22 +48,15 @@
         <img src="../ui-image/chevron.left@5x.png" class="icon5">
       </div>
     </div>
-    <div id="selectedNumContainer">0</div>
-    <div id="selectedCalContainer">0</div>
-    <div id="uploadFoodSection">
-      <div id="UploadFoodProfileButton" onclick="uploadFoodProfile()">Upload</div>
-      <div id="TagSearchContainer">
-        <input type="text" id="TagSearchField" placeholder="Food tags" required>
-      </div>
-      <input type="file" id="UploadFoodProfileFile" accept="image/*" onchange="saveAndPerviewImage(event)">
+    <div id="deletePopup">
+      <div id="deleteButton" style="background-color: red;" class="deletePopupButton">Delete</div>
+      <div id="cancleDeleteButton" style="top: 50px;" class="deletePopupButton">Cancle</div>
     </div>
-    <div class="topBarLable" style="top: 15px; left: 205px;">Items</div>
-    <div class="topBarLable" style="top: 39px; left: 205px;">Cal</div>
     <div id="logoContainer">
       <img src="../ui-image/CalTrack logo.png" id="mainLogo">
       <img src="../ui-image/Carrot Track text.png" id="logoText">
     </div>
     <script src="devScript.js"></script>
-    
+    <script src="devPostForm.js"></script>
 </body>
 </html>
