@@ -1,6 +1,26 @@
 import allfood from '../model/foodData.js';
 import typefood from '../model/foodType.js';
 
+export const CreateNewFoodTag = async(tag , category)=>{
+
+    try{
+        const newFoodTag = new typefood({
+            name : tag,
+            category : category,
+            num : 0,
+            sumCal : 0,
+            avgCal : 0,
+            imageCloudPath : ""
+        })
+        await newFoodTag.save();
+        return newFoodTag;
+    }
+    catch(err){
+        console.log(err);
+    }
+
+}
+
 export const VerifyFoodType = async(search)=>{
 
     try{

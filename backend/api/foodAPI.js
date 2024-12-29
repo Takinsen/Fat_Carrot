@@ -191,6 +191,34 @@ Food_API.post('/selectedItems', async(req , res)=>{
 
 });
 
+Food_API.post('/newTag' , async(req , res) =>{
+
+    const { newTag , category } = req.body;
+
+    try{
+        const before = (await typefood.find()).length;
+
+        // Create new tag
+        const newFoodTag = await Food.CreateNewFoodTag(newTag , category);
+
+        const after = (await typefood.find()).length;
+
+        res.status(200).json({
+            message : "Create new tag completed!",
+            before: before,
+            after: after,
+            newTag : newFoodTag,
+        })
+    }
+    catch(err){
+        res.status(500).json({
+            message : "Create new tag failed!",
+            error : err.message
+        })
+    }
+
+})
+
 Food_API.delete('/deleteFoodData/:id' , async(req , res)=>{
 
     try{

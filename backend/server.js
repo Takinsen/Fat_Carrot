@@ -1,14 +1,13 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv';
-import bodyParser from 'body-parser'; 
 import mongoose from 'mongoose';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { v2 as cloudinary } from 'cloudinary'
 import Food_API from './api/foodAPI.js';
 import Test_API from './api/testAPI.js';
-import User_API from './api/userAPI.js';
+import Auth_API from './api/auth.js';
 import * as foodScript from './script/foodScript.js';
 
 dotenv.config();
@@ -33,7 +32,7 @@ app.use(cors());
 app.use(express.json());
 app.use('/api' , Food_API);  
 app.use('/api' , Test_API);  
-app.use('/user' , User_API);  
+app.use('/user' , Auth_API);  
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));    
 
 // ---------------------- Start the Server ---------------------- //

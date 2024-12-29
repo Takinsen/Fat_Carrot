@@ -18,14 +18,6 @@ const foodDataSchema = new mongoose.Schema({
         type : String, 
         require : true
     },
-    imageName:{
-        type : String, 
-        require : true
-    },
-    imagePath:{
-        type : String, 
-        require : true
-    },
     imageCloudPath:{
         type : String, 
         require : true
