@@ -30,6 +30,8 @@ const foodTypeSchema = new mongoose.Schema({
     
 })
 
+foodTypeSchema.index({name : 1});
+
 const typefood = mongoose.model('type_food' , foodTypeSchema);
 
 export default typefood;
