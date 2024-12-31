@@ -4,28 +4,28 @@ const foodTypeSchema = new mongoose.Schema({
 
     name:{
         type : String, 
-        require : true,
+        required : true,
         unique : true
     },
     category:{
         type : String, 
-        require : true,
+        required : true,
     },
     num:{
         type : Number,
-        require : true
+        required : true
     },
     sumCal:{
         type : Number, 
-        require : true
+        default : 0
     },
     avgCal:{
         type : Number, 
-        require : true
+        default : 0
     },
     imageCloudPath:{
         type : String, 
-        require : true
+        required : true
     }
     
 })

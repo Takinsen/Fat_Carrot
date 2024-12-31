@@ -4,23 +4,55 @@ const foodDataSchema = new mongoose.Schema({
 
     name:{
         type : String, 
-        require : true
-    },
-    cal:{
-        type : Number,
-        require : true
+        required : true
     },
     loc:{
         type : String, 
-        require : true
+        default : "-"
     },
     tag:{
         type : String, 
-        require : true
+        required : true
+    },
+    tags:{
+        type : [String], 
+        default : []
+    },
+    cal:{
+        type : Number,
+        required : true
+    },
+    carb:{
+        type : Number,
+        default : -1
+    },
+    protein:{
+        type : Number,
+        default : -1
+    },
+    fat:{
+        type : Number,
+        default : -1
+    },
+    brand:{
+        type : String, 
+        default : "non-brand"   
+    },
+    description:{
+        type : String, 
+        default : "-"
     },
     imageCloudPath:{
         type : String, 
-        require : true
+        required : true
+    },
+    uploadby:{
+        type : String, 
+        default : "admin"
+    },
+    uploadDate:{
+        type : Date, 
+        default : Date.now
     }
 })
 

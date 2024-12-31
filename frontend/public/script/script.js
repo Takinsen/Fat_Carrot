@@ -1,5 +1,6 @@
-const apiUrl = 'https://fat-carrot-backend.onrender.com/api';
 const Url = 'https://fat-carrot-backend.onrender.com';
+const apiUrl = `${Url}/api`;
+const userUrl = `${Url}/user`;
 // production url pieboard.thddns.net:6994
 // Fetch and display all messages when the page loads
 let selectedgroup = "default";

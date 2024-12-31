@@ -2,7 +2,9 @@ import express from 'express';
 import path from 'path';
 import allfood from '../model/foodData.js';
 import typefood from '../model/foodType.js';
+import allbrand from '../model/foodBrand.js';
 import alluser from '../model/user.js';
+import alltag from '../model/tag.js';
 import * as Image from '../script/imageScript.js';
 import * as Food from '../script/foodScript.js';
 
@@ -15,8 +17,9 @@ const Test_API = express.Router();
 Test_API.get('/' , async(req , res) =>{
 
     try{
+
         res.status(200).json({
-            message : "Test API Success!"
+            message : "Test API Success!",
         })
     }
     catch(err){
@@ -31,9 +34,9 @@ Test_API.get('/' , async(req , res) =>{
 Test_API.post('/' , async(req , res) =>{
 
     try{
-        
-        res.status(200).json({
-            message : "completed!"
+
+        res.status(200).json({  
+            message : "completed!",
         })
     }
     catch(err){

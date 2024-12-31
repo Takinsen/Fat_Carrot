@@ -128,9 +128,9 @@ Food_API.post('/uploadFoodProfile', upload.single('image') , async(req , res)=>{
             return res.status(400).json({ error: `Food type '${tag}' does not exist.` });
         }
 
-        // Delete image from cloud ( อย่าพึ่งใช้จนกว่าจะอัพรูปทุกครบทุก tag )
-        // const publicID = Image.getPublicId(selectFood.imageCloudPath);
-        // await cloudinary.uploader.destroy(publicID);
+        // Delete image from Cloudinary
+        const publicID = Image.getPublicId(selectFood.imageCloudPath);
+        await cloudinary.uploader.destroy(publicID);
 
         // Upload image to Cloudinary
         const result = await Image.uploadToCloudinary(req.file.buffer , 'FoodProfile');
@@ -231,7 +231,7 @@ Food_API.delete('/deleteFoodData/:id' , async(req , res)=>{
 
         await Food.VerifyFoodType(deleteFood.tag);
 
-        // Delete Image
+        // Delete Image from Cloudinary
         const publicID = Image.getPublicId(deleteFood.imageCloudPath);
         await cloudinary.uploader.destroy(publicID);
 
